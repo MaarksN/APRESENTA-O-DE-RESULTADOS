@@ -218,17 +218,6 @@ tbody tr:hover td{background:#F0FAFE}
 .forecast-card .fc-label{font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#7C8D96;font-weight:800;margin-bottom:3px}
 .forecast-card .editable{font-size:11.5px;line-height:1.45}
 
-/* Cards da base detalhada de itens */
-.detail-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:9px;margin-top:12px}
-.detail-card{background:#fff;border:1px solid #E3ECF2;border-radius:10px;padding:10px 12px;font-size:11px;display:flex;flex-direction:column;gap:5px}
-.detail-card .dc-top{display:flex;justify-content:space-between;align-items:center;font-size:9px;text-transform:uppercase;letter-spacing:.4px;font-weight:800;color:var(--tt-primary-deep)}
-.detail-card .dc-tipo{color:#7C8D96}
-.detail-card .dc-cliente{font-size:11.5px;font-weight:800;color:var(--tt-charcoal);line-height:1.25}
-.detail-card .dc-produto{color:var(--muted);font-size:10.5px;line-height:1.3}
-.detail-card .dc-values{display:flex;justify-content:space-between;font-size:11px;color:var(--tt-charcoal);border-top:1px dashed #E3ECF2;padding-top:6px}
-.detail-card .dc-foot{display:flex;justify-content:space-between;align-items:center;font-size:9.5px;color:#7C8D96;font-weight:700}
-.detail-card .dc-foot .badge{font-size:8.5px;padding:2px 6px}
-
 </style>
 </head>
 <body>
@@ -267,7 +256,7 @@ tbody tr:hover td{background:#F0FAFE}
 
 <section class="section"><div class="section-head"><h3>Conversão do funil no CRM</h3></div><div id="funnel"></div></section>
 
-<section class="section"><div class="section-head"><h3>Base detalhada de itens</h3></div><div class="card"><div class="filters card-pad"><input id="detail-search" class="input" placeholder="Pesquisar na base detalhada"><select id="detail-month" class="select"><option value="">Todos os meses</option></select><span class="badge" id="detail-count"></span></div><div id="detail-cards" class="detail-cards card-pad"></div></div></section>
+<section class="section"><div class="section-head"><h3>Base detalhada de itens</h3></div><div class="card"><div class="filters card-pad"><input id="detail-search" class="input" placeholder="Pesquisar na base detalhada"><span class="badge" id="detail-count"></span></div><div id="detail-cards" class="vendor-cards card-pad"></div></div></section>
 
 <div class="footer">Fonte: arquivos HTML exportados da planilha “Vendas 2026” e relatório de forecast anexados ao chat. Valores realizados usam o consolidado oficial da aba 2026. Recomendações de ação são análises gerenciais, não fatos informados pela fonte.</div>
 </main>
@@ -399,7 +388,29 @@ function renderFunnel(){
   document.getElementById('funnel').innerHTML=`<div class="funnel-summary"><div class="funnel-summary-label">Conversão ponta a ponta · Lead Recebido → Contrato Assinado</div><div class="funnel-summary-value">${pct(overall*100)}</div><div class="funnel-summary-note">Estimativa calculada como produto das taxas de conversão de cada etapa do funil, agrupadas por pipeline.</div></div><div class="funnel-groups">${groupsHtml}</div>`;
 }
 renderFunnel();
-const dm=document.getElementById('detail-month');dm.innerHTML+=[...new Set(DATA.rows.map(r=>r.mes))].map(m=>`<option>${m}</option>`).join('');document.getElementById('detail-search').addEventListener('input',renderDetail);dm.addEventListener('change',renderDetail);function renderDetail(){const term=document.getElementById('detail-search').value.trim().toLocaleLowerCase('pt-BR'),m=dm.value;const filtered=DATA.rows.filter(r=>(!m||r.mes===m)&&Object.values(r).join(' ').toLocaleLowerCase('pt-BR').includes(term));const shown=filtered.slice(0,800);document.getElementById('detail-count').textContent=`${filtered.length.toLocaleString('pt-BR')} registro${filtered.length===1?'':'s'}${filtered.length>800?' · mostrando 800':''}`;document.getElementById('detail-table').innerHTML=shown.map(r=>`<tr><td>${esc(r.mes)}</td><td><b>${esc(r.cliente)}</b></td><td>${esc(r.produto)}</td><td>${esc(r.tipo)}</td><td class="num">${fmt.format(r.adesao)}</td><td class="num">${fmt.format(r.mensalidade)}</td><td>${esc(r.vendedor)}</td><td>${esc(r.classificacao)}</td></tr>`).join('')}
+document.getElementById('detail-search').addEventListener('input',renderDetail);
+function renderDetail(){
+  const term=document.getElementById('detail-search').value.trim().toLocaleLowerCase('pt-BR');
+  const filtered=DATA.rows.filter(r=>Object.values(r).join(' ').toLocaleLowerCase('pt-BR').includes(term));
+  document.getElementById('detail-count').textContent=`${filtered.length.toLocaleString('pt-BR')} registro${filtered.length===1?'':'s'}`;
+  const byMonth={};
+  filtered.forEach(r=>{(byMonth[r.mes]=byMonth[r.mes]||[]).push(r)});
+  const months=MESES_ORDEM.filter(m=>byMonth[m]&&byMonth[m].length);
+  document.getElementById('detail-cards').innerHTML=months.length?months.map(m=>{
+    const rows=byMonth[m],adesao=rows.reduce((a,r)=>a+r.adesao,0),mensalidade=rows.reduce((a,r)=>a+r.mensalidade,0);
+    const rowsHtml=rows.map(r=>`<tr><td><b>${esc(r.cliente)}</b></td><td>${esc(r.produto)}</td><td>${esc(r.tipo)}</td><td class="num">${fmt.format(r.adesao)}</td><td class="num">${fmt.format(r.mensalidade)}</td><td>${esc(r.vendedor)}</td><td>${esc(r.classificacao)}</td></tr>`).join('');
+    return `<article class="vendor-card">
+      <div class="vendor-card-head"><div><div class="vendor-kicker">Competência 2026</div><h4>${esc(m)}</h4></div><div class="vendor-share">${rows.length} itens</div></div>
+      <div class="vendor-metrics">
+        <div class="vendor-metric"><div class="metric-label">Adesão</div><div class="metric-value">${fmt.format(adesao)}</div></div>
+        <div class="vendor-metric"><div class="metric-label">Mensalidade</div><div class="metric-value">${fmt.format(mensalidade)}</div></div>
+      </div>
+      <details class="vendor-clients"><summary>Ver ${rows.length} item${rows.length===1?'':'s'}</summary>
+        <div class="table-wrap"><table><thead><tr><th>Cliente</th><th>Produto</th><th>Tipo</th><th class="num">Adesão</th><th class="num">Mensalidade</th><th>Vendedor</th><th>Classificação</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>
+      </details>
+    </article>`;
+  }).join(''):'<div class="empty">Nenhum registro encontrado.</div>';
+}
 function csvCell(v){return `"${String(v??'').replaceAll('"','""')}"`}function download(name,content){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+content],{type:'text/csv;charset=utf-8'}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}function exportCSV(type){if(type==='vendas'){const h=['Mês','Cliente','Produto','Tipo','Adesão','Mensalidade','Vendedor','Classificação'];const rows=DATA.rows.map(r=>[r.mes,r.cliente,r.produto,r.tipo,r.adesao,r.mensalidade,r.vendedor,r.classificacao]);download('Vendas_Total_Track_Jan-Jul_2026.csv',[h,...rows].map(r=>r.map(csvCell).join(';')).join('\n'))}else{const h=['Status','Empresa','Responsável','Origem','Valor','Motivo','Plano'];const rows=DATA.actions.map((x,i)=>{const e=saved[actionKey(x,i)]||{};return[x.grupo,x.empresa,x.responsavel,x.origem,x.valor,e.motivo||x.motivo,e.plano||x.plano]});download('Forecast_Total_Track_Acoes.csv',[h,...rows].map(r=>r.map(csvCell).join(';')).join('\n'))}}
 renderCompanies();renderForecast();renderDetail();
 </script>
