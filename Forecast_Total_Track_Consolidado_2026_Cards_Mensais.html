@@ -480,4 +480,281 @@ function renderDetail(){
 function csvCell(v){return `"${String(v??'').replaceAll('"','""')}"`}function download(name,content){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+content],{type:'text/csv;charset=utf-8'}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}function exportCSV(type){if(type==='vendas'){const h=['Mês','Cliente','Produto','Tipo','Adesão','Mensalidade','Vendedor','Classificação'];const rows=DATA.rows.map(r=>[r.mes,r.cliente,r.produto,r.tipo,r.adesao,r.mensalidade,r.vendedor,r.classificacao]);download('Vendas_Total_Track_Jan-Jul_2026.csv',[h,...rows].map(r=>r.map(csvCell).join(';')).join('\n'))}else{const h=['Status','Empresa','Responsável','Origem','Valor','Motivo','Plano'];const rows=DATA.actions.map((x,i)=>{const e=saved[actionKey(x,i)]||{};return[x.grupo,x.empresa,x.responsavel,x.origem,x.valor,e.motivo||x.motivo,e.plano||x.plano]});download('Forecast_Total_Track_Acoes.csv',[h,...rows].map(r=>r.map(csvCell).join(';')).join('\n'))}}
 renderCompanies();renderForecast();renderDetail();
 </script>
+
+<script>
+(function(){
+  function parseBRL(s){return Number(String(s).replace(/[^\d,-]/g,'').replace(',','.'))||0;}
+
+  function buildPresentationData(){
+    const jul = DATA.monthly.find(m=>m.mes==='Julho');
+    if(!jul) return null;
+    const S = DATA.summary, C = DATA.crm;
+    const sellers = [...DATA.july_sellers].sort((a,b)=>(b.adesao+b.mensalidade)-(a.adesao+a.mensalidade));
+    const julyByVendor = {};
+    (DATA.month_groups['Julho']||[]).forEach(e=>{
+      const v = e.vendedores[0]||'Não informado';
+      (julyByVendor[v]=julyByVendor[v]||[]).push(e.empresa);
+    });
+    const prodMap={};
+    DATA.rows.filter(r=>r.mes==='Julho').forEach(r=>{
+      if(!prodMap[r.produto])prodMap[r.produto]={produto:r.produto,ocorrencias:0,adesao:0,mensalidade:0};
+      const p=prodMap[r.produto];p.ocorrencias++;p.adesao+=r.adesao;p.mensalidade+=r.mensalidade;
+    });
+    const topProdutos=Object.values(prodMap).sort((a,b)=>(b.adesao+b.mensalidade)-(a.adesao+a.mensalidade)).slice(0,8);
+    const prodTotal={ocorrencias:topProdutos.reduce((a,p)=>a+p.ocorrencias,0),adesao:topProdutos.reduce((a,p)=>a+p.adesao,0),mensalidade:topProdutos.reduce((a,p)=>a+p.mensalidade,0)};
+
+    const pendItems = DATA.actions.filter(a=>a.grupo==='Pendente de assinatura');
+    const foreItems = DATA.actions.filter(a=>a.grupo==='Forecast');
+    const pend = {count:C.pending_count, valor:C.pending_value, items:pendItems};
+    const fore = {count:C.forecast_count, valor:C.forecast_value, items:foreItems};
+    const confirmadoValor = parseBRL(C.kpis.vendas_confirmadas_valor_fmt);
+    const confirmado = {count:C.kpis.vendas_confirmadas_count, valor:confirmadoValor};
+    const potencialCount = pend.count+fore.count+confirmado.count;
+    const potencialValor = pend.valor+fore.valor+confirmado.valor;
+
+    const saldoAcum = S.realized_ytd - S.goal_ytd;
+
+    const groups=[]; DATA.crm.funil.forEach(f=>{let g=groups.find(x=>x.grupo===f.grupo);if(!g){g={grupo:f.grupo,stages:[]};groups.push(g)}g.stages.push(f)});
+    let overall=1;
+    groups.forEach(g=>{const geral=g.stages.find(s=>/geral/i.test(s.para));const c=geral?geral.pct/100:g.stages.reduce((a,s)=>a*(s.pct/100),1);overall*=c;});
+
+    return {jul,S,C,sellers,julyByVendor,topProdutos,prodTotal,pend,fore,confirmado,potencialCount,potencialValor,saldoAcum,funilGroups:groups,funilOverall:overall*100};
+  }
+
+  function groupByResp(items){
+    const map={};items.forEach(it=>{if(!map[it.responsavel])map[it.responsavel]={responsavel:it.responsavel,count:0,valor:0};map[it.responsavel].count++;map[it.responsavel].valor+=it.valor;});
+    return Object.values(map).sort((a,b)=>b.valor-a.valor);
+  }
+  function pillsHtml(items){
+    return `<div class="pd-pills">${groupByResp(items).map(g=>`<div class="pd-pill"><b>${esc(g.responsavel)}</b><span>${g.count} · ${fmt.format(g.valor)}</span></div>`).join('')}</div>`;
+  }
+  function companyCardsHtml(items){
+    return `<div class="pd-company-cards">${items.map(it=>`<div class="pd-company-card"><div class="pcc-name">${esc(it.empresa)}</div><div class="pcc-meta">${esc(it.responsavel)}${it.origem&&it.origem!=='Não informada'?' · '+esc(it.origem):''}</div><div class="pcc-valor">${fmt.format(it.valor)}</div></div>`).join('')}</div>`;
+  }
+
+  function renderPresentation(){
+    const pd = buildPresentationData();
+    if(!pd) return;
+    const {jul,S,sellers,julyByVendor,topProdutos,prodTotal,pend,fore,confirmado,potencialCount,potencialValor,saldoAcum,funilGroups,funilOverall} = pd;
+
+    const slides=[];
+    slides.push({cls:'on-accent center', html:`
+      <div class="pd-slide-word"><span class="w1">TOTAL</span><span class="w2">TRACK</span></div>
+      <div class="pd-slide-heading" style="font-size:22px;">Apresentação dos Resultados</div>
+      <div class="pd-slide-eyebrow" style="margin-top:8px;">Julho de 2026</div>
+    `});
+    slides.push({cls:'on-accent center', html:`
+      <div class="pd-slide-eyebrow">Resultado de indicadores do comercial</div>
+      <div class="pd-slide-big">JULHO DE 2026</div>
+    `});
+    slides.push({cls:'on-white center', html:`
+      <div class="pd-slide-eyebrow">Meta mensal de julho</div>
+      <div class="pd-slide-stat" style="color:var(--tt-accent);">${fmt.format(S.monthly_goal)}</div>
+    `});
+    slides.push({cls:'on-accent center', html:`
+      <div class="pd-slide-eyebrow">Valor realizado de julho</div>
+      <div class="pd-slide-stat">${fmt.format(S.july_realized)}</div>
+      <div class="pd-slide-sub">Acompanhamento mensal Meta × Realizado</div>
+    `});
+    slides.push({cls:'on-white center', html:`
+      <div class="pd-slide-eyebrow">Saldo da meta mensal de julho</div>
+      <div class="pd-slide-stat" style="color:${jul.saldo>=0?'var(--good)':'var(--crit)'};">${fmt.format(jul.saldo)}</div>
+      <div class="pd-slide-sub">${pct(jul.pct)} da meta atingida</div>
+    `});
+    const monthRows = DATA.monthly.map(m=>`<tr><td>${esc(m.mes)}</td><td>${fmt.format(m.meta)}</td><td>${fmt.format(m.realizado)}</td><td>${pct(m.pct)}</td></tr>`).join('');
+    slides.push({cls:'on-white', html:`
+      <div class="pd-slide-eyebrow">Meta × Realizado — 2026</div>
+      <div class="pd-slide-heading">Janeiro a Julho</div>
+      <div class="pd-slide-table"><table><thead><tr><th>Mês</th><th>Meta</th><th>Realizado</th><th>% Meta</th></tr></thead><tbody>${monthRows}</tbody></table></div>
+    `});
+    slides.push({cls:'on-accent center', html:`
+      <div class="pd-slide-eyebrow">Resultado acumulado 2026 — Janeiro a Julho</div>
+      <div class="pd-slide-stat" style="font-size:30px;">${fmt.format(S.realized_ytd)}</div>
+      <div class="pd-slide-sub">Meta acumulada: ${fmt.format(S.goal_ytd)} · ${pct(S.attainment_ytd)} da meta</div>
+      <div class="pd-slide-sub">Saldo acumulado: ${fmt.format(saldoAcum)}</div>
+    `});
+    const sellerRows = sellers.map(v=>`<tr><td>${esc(v.vendedor)}</td><td>${v.empresas}</td><td>${v.itens}</td><td>${fmt.format(v.adesao)}</td><td>${fmt.format(v.mensalidade)}</td></tr>`).join('');
+    const sellerTotal = sellers.reduce((a,v)=>({adesao:a.adesao+v.adesao,mensalidade:a.mensalidade+v.mensalidade,itens:a.itens+v.itens,empresas:a.empresas+v.empresas}),{adesao:0,mensalidade:0,itens:0,empresas:0});
+    slides.push({cls:'on-white', html:`
+      <div class="pd-slide-eyebrow">Vendido por vendedor</div>
+      <div class="pd-slide-heading">Julho de 2026</div>
+      <div class="pd-slide-table"><table><thead><tr><th>Vendedor</th><th>Empresas</th><th>Itens</th><th>Adesão</th><th>Mensalidade</th></tr></thead><tbody>${sellerRows}</tbody><tfoot><tr><td>TOTAL</td><td>${sellerTotal.empresas}</td><td>${sellerTotal.itens}</td><td>${fmt.format(sellerTotal.adesao)}</td><td>${fmt.format(sellerTotal.mensalidade)}</td></tr></tfoot></table></div>
+    `});
+    if(topProdutos.length){
+      const prodRows = topProdutos.map(p=>`<tr><td>${esc(p.produto)}</td><td>${p.ocorrencias}</td><td>${fmt.format(p.adesao)}</td><td>${fmt.format(p.mensalidade)}</td></tr>`).join('');
+      slides.push({cls:'on-white', html:`
+        <div class="pd-slide-eyebrow">Produtos mais vendidos</div>
+        <div class="pd-slide-heading" style="font-size:17px;">Julho de 2026 — top ${topProdutos.length}</div>
+        <div class="pd-slide-table"><table style="font-size:11.5px;"><thead><tr><th>Produto</th><th>Ocorr.</th><th>Adesão</th><th>Mensalidade</th></tr></thead><tbody>${prodRows}</tbody><tfoot><tr><td>TOTAL</td><td>${prodTotal.ocorrencias}</td><td>${fmt.format(prodTotal.adesao)}</td><td>${fmt.format(prodTotal.mensalidade)}</td></tr></tfoot></table></div>
+      `});
+    }
+    slides.push({cls:'on-dark center', html:`
+      <div class="pd-slide-eyebrow">Julho de 2026</div>
+      <div class="pd-slide-big">CLIENTES FECHADOS<br>POR VENDEDOR</div>
+    `});
+    sellers.forEach(v=>{
+      const empresas = julyByVendor[v.vendedor]||[];
+      slides.push({cls:'on-white', html:`
+        <div class="pd-slide-eyebrow">Vendedor</div>
+        <div class="pd-slide-heading">${esc(v.vendedor)}</div>
+        <div class="pd-slide-sub">${empresas.length} cliente${empresas.length===1?'':'s'} · ${fmt.format(v.adesao+v.mensalidade)}</div>
+        <div class="pd-slide-list"><ul>${empresas.map(e=>`<li>${esc(e)}</li>`).join('')}</ul></div>
+      `});
+    });
+    const funilRows = funilGroups.flatMap(g=>g.stages.map(s=>`<tr><td>${esc(g.grupo)}</td><td>${esc(s.de)} → ${esc(s.para)}</td><td>${String(s.pct).replace('.',',')}%</td></tr>`)).join('');
+    slides.push({cls:'on-white', html:`
+      <div class="pd-slide-eyebrow">Funil de conversão</div>
+      <div class="pd-slide-heading">CRM — Julho</div>
+      <div class="pd-slide-table"><table><thead><tr><th>Pipeline</th><th>Etapa</th><th>Conversão</th></tr></thead><tbody>${funilRows}</tbody><tfoot><tr><td colspan="2">Ponta a ponta (Lead → Contrato)</td><td>${pct(funilOverall)}</td></tr></tfoot></table></div>
+    `});
+    slides.push({cls:'on-white center clickable', target:'pd-detail-pendentes', html:`
+      <div class="pd-slide-eyebrow">1. Pendentes Assinatura</div>
+      <div class="pd-slide-stat" style="font-size:32px;color:var(--warn);">${pend.count} empresas</div>
+      <div class="pd-slide-sub">${fmt.format(pend.valor)}</div>
+      <div class="pd-slide-cta" style="color:var(--tt-accent);">Ver detalhamento completo ↓</div>
+    `});
+    slides.push({cls:'on-accent center clickable', target:'pd-detail-forecast', html:`
+      <div class="pd-slide-eyebrow">2. Forecast</div>
+      <div class="pd-slide-stat" style="font-size:32px;">${fore.count} empresas</div>
+      <div class="pd-slide-sub">${fmt.format(fore.valor)}</div>
+      <div class="pd-slide-cta">Ver detalhamento completo ↓</div>
+    `});
+    slides.push({cls:'on-white center clickable', target:'pd-detail-potencial', html:`
+      <div class="pd-slide-eyebrow">3. Potencial Geral</div>
+      <div class="pd-slide-stat" style="font-size:32px;color:var(--good);">${potencialCount} empresas</div>
+      <div class="pd-slide-sub">${fmt.format(potencialValor)} · Confirmado + Pendentes + Forecast</div>
+      <div class="pd-slide-cta" style="color:var(--tt-accent);">Ver detalhamento completo ↓</div>
+    `});
+
+    const total = slides.length;
+    const slidesHtml = slides.map((s,i)=>`<div class="pd-slide ${s.cls}"${s.target?` data-target="${s.target}"`:''}><div class="pd-slide-inner">${s.html}<div class="pd-slide-badge">${i+1} / ${total}</div></div></div>`).join('');
+    const deckHtml = `<div class="pd-deck-wrap"><div class="pd-deck" id="pd-deck">${slidesHtml}</div><div class="pd-deck-nav prev" id="pd-prev">‹</div><div class="pd-deck-nav next" id="pd-next">›</div><div class="pd-deck-dots" id="pd-dots">${slides.map((_,i)=>`<button class="pd-deck-dot${i===0?' active':''}" data-i="${i}"></button>`).join('')}</div></div>`;
+
+    const pendGroup = `<div class="pd-fc-group"><div class="pd-fc-group-head"><h4>1. Pendentes Assinatura</h4><div class="pd-fc-group-total">${pend.count} empresas · ${fmt.format(pend.valor)}</div></div><p class="pd-fc-note">Contratos já negociados, aguardando assinatura para virarem venda confirmada.</p>${pillsHtml(pend.items)}<details class="pd-kv-details" id="pd-detail-pendentes"><summary>Ver as ${pend.count} empresas</summary>${companyCardsHtml(pend.items)}</details></div>`;
+    const foreGroup = `<div class="pd-fc-group"><div class="pd-fc-group-head"><h4>2. Forecast</h4><div class="pd-fc-group-total">${fore.count} empresas · ${fmt.format(fore.valor)}</div></div><p class="pd-fc-note">Oportunidades em prospecção/negociação com expectativa de fechamento.</p>${pillsHtml(fore.items)}<details class="pd-kv-details" id="pd-detail-forecast"><summary>Ver as ${fore.count} empresas</summary>${companyCardsHtml(fore.items)}</details></div>`;
+    const potGroup = `<div class="pd-fc-group"><div class="pd-fc-group-head"><h4>3. Potencial Geral</h4><div class="pd-fc-group-total">${potencialCount} empresas · ${fmt.format(potencialValor)}</div></div><p class="pd-fc-note">Soma de Confirmado no CRM (${confirmado.count} · ${fmt.format(confirmado.valor)}) + Pendentes Assinatura (${pend.count} · ${fmt.format(pend.valor)}) + Forecast (${fore.count} · ${fmt.format(fore.valor)}). Os negócios confirmados no CRM não possuem lista individual nesta base — apenas o total consolidado.</p><details class="pd-kv-details" id="pd-detail-potencial"><summary>Ver composição</summary><div class="pd-pills"><div class="pd-pill"><b>Confirmado no CRM</b><span>${confirmado.count} · ${fmt.format(confirmado.valor)}</span></div><div class="pd-pill"><b>Pendentes Assinatura</b><span>${pend.count} · ${fmt.format(pend.valor)}</span></div><div class="pd-pill"><b>Forecast</b><span>${fore.count} · ${fmt.format(fore.valor)}</span></div></div></details></div>`;
+
+    document.getElementById('pd-root').innerHTML = deckHtml + `<div class="pd-subsection-title">Detalhamento</div>` + pendGroup + foreGroup + potGroup;
+
+    const deckEl=document.getElementById('pd-deck'),dotsEl=document.getElementById('pd-dots'),slideEls=Array.from(deckEl.children);
+    function scrollToSlide(i){const t=slideEls[Math.max(0,Math.min(i,slideEls.length-1))];if(t)t.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'})}
+    document.getElementById('pd-prev').addEventListener('click',()=>{const i=slideEls.findIndex(el=>Math.abs(el.getBoundingClientRect().left-deckEl.getBoundingClientRect().left)<el.offsetWidth/2);scrollToSlide(i-1)});
+    document.getElementById('pd-next').addEventListener('click',()=>{const i=slideEls.findIndex(el=>Math.abs(el.getBoundingClientRect().left-deckEl.getBoundingClientRect().left)<el.offsetWidth/2);scrollToSlide(i+1)});
+    dotsEl.querySelectorAll('.pd-deck-dot').forEach(d=>d.addEventListener('click',()=>scrollToSlide(parseInt(d.dataset.i,10))));
+    let st=null;
+    deckEl.addEventListener('scroll',()=>{clearTimeout(st);st=setTimeout(()=>{const dr=deckEl.getBoundingClientRect();let closest=0,cd=Infinity;slideEls.forEach((el,i)=>{const dist=Math.abs((el.getBoundingClientRect().left+el.offsetWidth/2)-(dr.left+dr.width/2));if(dist<cd){cd=dist;closest=i}});dotsEl.querySelectorAll('.pd-deck-dot').forEach((d,i)=>d.classList.toggle('active',i===closest))},80)});
+    deckEl.addEventListener('click',e=>{const el=e.target.closest('.pd-slide[data-target]');if(!el)return;const t=document.getElementById(el.dataset.target);if(!t)return;t.open=true;t.scrollIntoView({behavior:'smooth',block:'center'})});
+  }
+
+  async function downloadPptx(){
+    const btn=document.getElementById('pd-btn-pptx'),orig=btn.innerHTML;btn.disabled=true;btn.innerHTML='Gerando…';
+    try{
+      const pd=buildPresentationData();if(!pd)throw new Error('dados indisponíveis');
+      const {jul,S,sellers,julyByVendor,topProdutos,prodTotal,pend,fore,confirmado,potencialCount,potencialValor,saldoAcum,funilGroups,funilOverall}=pd;
+      const ACCENT='008FCE',PRIMARY='374898',DARK='1E2F37',WHITE='FFFFFF',GOOD='178247',CRIT='BC3E2C',WARN='A96F00',INK='1E2F37';
+      const pres=new PptxGenJS();pres.layout='LAYOUT_WIDE';pres.theme={headFontFace:'Arial',bodyFontFace:'Arial'};
+      function slideBg(color){const s=pres.addSlide();s.background={color};return s}
+      function bigCenter(s,eyebrow,big,sub,color){
+        s.addText(eyebrow.toUpperCase(),{x:0.6,y:2.1,w:12.1,h:0.6,align:'center',fontSize:15,bold:true,color:color===WHITE?'D6F0FA':'607782',charSpacing:2});
+        s.addText(big,{x:0.6,y:2.7,w:12.1,h:1.6,align:'center',fontSize:38,bold:true,color});
+        if(sub)s.addText(sub,{x:0.6,y:4.3,w:12.1,h:0.6,align:'center',fontSize:14,bold:true,color:color===WHITE?'D6F0FA':'607782'});
+      }
+      function tableSlide(title,sub,rows,colW){
+        const s=slideBg(WHITE);
+        s.addText(title.toUpperCase(),{x:0.5,y:0.35,w:12.3,h:0.5,fontSize:13,bold:true,color:'8A9BA5',charSpacing:1.5});
+        s.addText(sub,{x:0.5,y:0.82,w:12.3,h:0.5,fontSize:20,bold:true,color:INK});
+        s.addTable(rows,{x:0.5,y:1.6,w:12.3,colW,fontSize:12,fontFace:'Arial',border:{type:'solid',color:'DCE7EF',pt:0.5},autoPage:false});
+        return s;
+      }
+      let s=slideBg(PRIMARY);
+      s.addText('TOTAL TRACK',{x:0.8,y:2.0,w:11.7,h:0.6,align:'center',fontSize:22,bold:true,color:WHITE});
+      s.addText('Apresentação dos Resultados',{x:0.8,y:2.6,w:11.7,h:1.0,align:'center',fontSize:32,bold:true,color:WHITE});
+      s.addText('JULHO DE 2026',{x:0.8,y:3.5,w:11.7,h:0.6,align:'center',fontSize:16,bold:true,color:'D6F0FA',charSpacing:3});
+
+      s=slideBg(PRIMARY);
+      s.addText('RESULTADO DE INDICADORES DO COMERCIAL',{x:0.8,y:2.9,w:11.7,h:0.8,align:'center',fontSize:22,bold:true,color:WHITE});
+      s.addText('JULHO DE 2026',{x:0.8,y:3.7,w:11.7,h:0.6,align:'center',fontSize:20,bold:true,color:WHITE});
+
+      s=slideBg(WHITE);bigCenter(s,'Meta mensal de julho',fmt.format(S.monthly_goal),'',ACCENT);
+      s=slideBg(PRIMARY);bigCenter(s,'Valor realizado de julho',fmt.format(S.july_realized),'Acompanhamento mensal Meta × Realizado',WHITE);
+      s=slideBg(WHITE);bigCenter(s,'Saldo da meta mensal de julho',fmt.format(jul.saldo),`${pct(jul.pct)} da meta atingida`,jul.saldo>=0?GOOD:CRIT);
+
+      const monthRowsPptx=[[{text:'Mês',options:{bold:true,fill:DARK,color:WHITE}},{text:'Meta',options:{bold:true,fill:DARK,color:WHITE}},{text:'Realizado',options:{bold:true,fill:DARK,color:WHITE}},{text:'% Meta',options:{bold:true,fill:DARK,color:WHITE}}]];
+      DATA.monthly.forEach(m=>monthRowsPptx.push([m.mes,fmt.format(m.meta),fmt.format(m.realizado),pct(m.pct)]));
+      tableSlide('Meta × Realizado — 2026','Janeiro a Julho',monthRowsPptx,[3,3.4,3.4,2.5]);
+
+      s=slideBg(PRIMARY);bigCenter(s,'Resultado acumulado 2026 — Jan a Jul',fmt.format(S.realized_ytd),`Meta: ${fmt.format(S.goal_ytd)} · ${pct(S.attainment_ytd)} da meta · Saldo: ${fmt.format(saldoAcum)}`,WHITE);
+
+      const sellerRowsPptx=[[{text:'Vendedor',options:{bold:true,fill:DARK,color:WHITE}},{text:'Empresas',options:{bold:true,fill:DARK,color:WHITE}},{text:'Itens',options:{bold:true,fill:DARK,color:WHITE}},{text:'Adesão',options:{bold:true,fill:DARK,color:WHITE}},{text:'Mensalidade',options:{bold:true,fill:DARK,color:WHITE}}]];
+      let stot={adesao:0,mensalidade:0,itens:0,empresas:0};
+      sellers.forEach(v=>{sellerRowsPptx.push([v.vendedor,String(v.empresas),String(v.itens),fmt.format(v.adesao),fmt.format(v.mensalidade)]);stot.adesao+=v.adesao;stot.mensalidade+=v.mensalidade;stot.itens+=v.itens;stot.empresas+=v.empresas});
+      sellerRowsPptx.push([{text:'TOTAL',options:{bold:true}},{text:String(stot.empresas),options:{bold:true}},{text:String(stot.itens),options:{bold:true}},{text:fmt.format(stot.adesao),options:{bold:true}},{text:fmt.format(stot.mensalidade),options:{bold:true}}]);
+      tableSlide('Vendido por vendedor','Julho de 2026',sellerRowsPptx,[3.5,2.2,2.1,2.3,2.2]);
+
+      if(topProdutos.length){
+        const prodRowsPptx=[[{text:'Produto',options:{bold:true,fill:DARK,color:WHITE}},{text:'Ocorr.',options:{bold:true,fill:DARK,color:WHITE}},{text:'Adesão',options:{bold:true,fill:DARK,color:WHITE}},{text:'Mensalidade',options:{bold:true,fill:DARK,color:WHITE}}]];
+        topProdutos.forEach(p=>prodRowsPptx.push([p.produto,String(p.ocorrencias),fmt.format(p.adesao),fmt.format(p.mensalidade)]));
+        prodRowsPptx.push([{text:'TOTAL',options:{bold:true}},{text:String(prodTotal.ocorrencias),options:{bold:true}},{text:fmt.format(prodTotal.adesao),options:{bold:true}},{text:fmt.format(prodTotal.mensalidade),options:{bold:true}}]);
+        tableSlide('Produtos mais vendidos',`Julho de 2026 — top ${topProdutos.length}`,prodRowsPptx,[6,2,2.15,2.15]);
+      }
+
+      s=slideBg(DARK);
+      s.addText('JULHO DE 2026',{x:0.8,y:2.5,w:11.7,h:0.5,align:'center',fontSize:14,bold:true,color:'9FB4BD',charSpacing:2});
+      s.addText('CLIENTES FECHADOS\nPOR VENDEDOR',{x:0.8,y:3.0,w:11.7,h:1.4,align:'center',fontSize:26,bold:true,color:WHITE});
+
+      sellers.forEach(v=>{
+        const empresas=julyByVendor[v.vendedor]||[];
+        s=slideBg(WHITE);
+        s.addText('VENDEDOR',{x:0.6,y:0.4,w:12,h:0.4,fontSize:12,bold:true,color:'8A9BA5',charSpacing:1.5});
+        s.addText(v.vendedor,{x:0.6,y:0.78,w:12,h:0.6,fontSize:24,bold:true,color:INK});
+        s.addText(`${empresas.length} cliente${empresas.length===1?'':'s'} · ${fmt.format(v.adesao+v.mensalidade)}`,{x:0.6,y:1.35,w:12,h:0.4,fontSize:13,bold:true,color:ACCENT});
+        s.addText(empresas.map(e=>({text:e,options:{bullet:true,breakLine:true}})),{x:0.6,y:1.95,w:12,h:4.8,fontSize:14,color:INK,paraSpaceAfter:6});
+      });
+
+      const funilRowsPptx=[[{text:'Pipeline',options:{bold:true,fill:DARK,color:WHITE}},{text:'Etapa',options:{bold:true,fill:DARK,color:WHITE}},{text:'Conversão',options:{bold:true,fill:DARK,color:WHITE}}]];
+      funilGroups.forEach(g=>g.stages.forEach(stg=>funilRowsPptx.push([g.grupo,`${stg.de} → ${stg.para}`,`${String(stg.pct).replace('.',',')}%`])));
+      funilRowsPptx.push([{text:'Ponta a ponta',options:{bold:true}},{text:'Lead → Contrato Assinado',options:{bold:true}},{text:pct(funilOverall),options:{bold:true}}]);
+      tableSlide('Funil de conversão','CRM — Julho',funilRowsPptx,[3.5,6,2.8]);
+
+      s=slideBg(WHITE);bigCenter(s,'1. Pendentes Assinatura',`${pend.count} empresas`,fmt.format(pend.valor),WARN);
+      s=slideBg(PRIMARY);bigCenter(s,'2. Forecast',`${fore.count} empresas`,fmt.format(fore.valor),WHITE);
+      s=slideBg(WHITE);bigCenter(s,'3. Potencial Geral',`${potencialCount} empresas`,`${fmt.format(potencialValor)} · Confirmado + Pendentes + Forecast`,GOOD);
+
+      await pres.writeFile({fileName:'Apresentacao_Resultados_TotalTrack_Julho_2026.pptx'});
+    }catch(err){alert('Não foi possível gerar a apresentação: '+err.message)}
+    finally{btn.disabled=false;btn.innerHTML=orig}
+  }
+
+  function downloadXlsx(){
+    const btn=document.getElementById('pd-btn-xlsx'),orig=btn.innerHTML;btn.disabled=true;btn.innerHTML='Gerando…';
+    try{
+      const pd=buildPresentationData();if(!pd)throw new Error('dados indisponíveis');
+      const {sellers,topProdutos,pend,fore}=pd;
+      const wb=XLSX.utils.book_new();
+      function addSheet(name,header,rows,totalRow){const data=[header,...rows];if(totalRow)data.push(totalRow);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(data),name)}
+      addSheet('Vendido por vendedor Jul',['Vendedor','Empresas','Itens','Adesão','Mensalidade'],
+        sellers.map(v=>[v.vendedor,v.empresas,v.itens,v.adesao,v.mensalidade]),
+        ['TOTAL',sellers.reduce((a,v)=>a+v.empresas,0),sellers.reduce((a,v)=>a+v.itens,0),sellers.reduce((a,v)=>a+v.adesao,0),sellers.reduce((a,v)=>a+v.mensalidade,0)]);
+      addSheet('Produtos Jul',['Produto','Ocorrências','Adesão','Mensalidade'],
+        topProdutos.map(p=>[p.produto,p.ocorrencias,p.adesao,p.mensalidade]),
+        ['TOTAL',topProdutos.reduce((a,p)=>a+p.ocorrencias,0),topProdutos.reduce((a,p)=>a+p.adesao,0),topProdutos.reduce((a,p)=>a+p.mensalidade,0)]);
+      addSheet('Pendentes Assinatura',['Empresa','Responsável','Origem','Valor'],
+        pend.items.map(it=>[it.empresa,it.responsavel,it.origem,it.valor]),
+        ['TOTAL','','',pend.valor]);
+      addSheet('Forecast',['Empresa','Responsável','Origem','Valor'],
+        fore.items.map(it=>[it.empresa,it.responsavel,it.origem,it.valor]),
+        ['TOTAL','','',fore.valor]);
+      const monthHeader=['Mês','Meta','Realizado','Saldo','% Meta'];
+      const monthRows=DATA.monthly.map(m=>[m.mes,m.meta,m.realizado,m.saldo,m.pct]);
+      XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([monthHeader,...monthRows]),'Meta x Realizado 2026');
+      XLSX.writeFile(wb,'Controle_Comercial_TotalTrack_Julho_2026.xlsx');
+    }catch(err){alert('Não foi possível gerar a planilha: '+err.message)}
+    finally{btn.disabled=false;btn.innerHTML=orig}
+  }
+
+  document.getElementById('pd-btn-pptx').addEventListener('click',downloadPptx);
+  document.getElementById('pd-btn-xlsx').addEventListener('click',downloadXlsx);
+  renderPresentation();
+})();
+</script>
 </body></html>
