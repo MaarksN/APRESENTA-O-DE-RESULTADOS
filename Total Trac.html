@@ -204,6 +204,7 @@ tbody tr:hover td{background:#F0FAFE}
 .month-card[open] .mc-arrow{transform:rotate(180deg)}
 .month-card[open] .month-card-summary{border-bottom:1px solid #E3ECF2}
 .month-card .company-cards{grid-template-columns:1fr;margin-top:0;padding:13px 15px}
+.month-card .forecast-cards{margin-top:0;padding:13px 15px}
 .company-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin-top:14px}
 .company-card{background:#fff;border:1px solid #DCE8EF;border-radius:14px;padding:13px 15px;box-shadow:0 8px 18px rgba(45,59,120,.07);display:flex;flex-direction:column;gap:9px}
 .company-card .cc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -317,7 +318,7 @@ tbody tr:hover td{background:#F0FAFE}
 
 <section class="section"><div class="section-head"><h3>Empresas e produtos</h3></div><div class="card"><div class="card-pad"><div class="filters"><input id="company-search" class="input" placeholder="Pesquisar empresa, produto ou vendedor"><span class="badge" id="company-count"></span></div><div id="company-cards" class="month-cards"></div></div></div></section>
 
-<section class="section"><div class="section-head"><h3>Resultados 2026 de fechamento do CRM</h3></div><div class="note">Esta seção preserva a base de oportunidades do Resultados 2026 original. Ela não é somada ao “realizado” das planilhas, evitando dupla contagem. Os motivos específicos de não assinatura não constam nos anexos; por isso, aparecem como pendentes de validação. Os planos de ação são recomendações gerenciais.</div><div class="kpis" id="crm-kpis" style="margin-top:12px"></div><div class="card" style="margin-top:12px"><div class="filters card-pad"><input id="forecast-search" class="input" placeholder="Pesquisar empresa ou responsável"><select id="forecast-status" class="select"><option value="">Todos os grupos</option><option>Pendente de assinatura</option><option value="Forecast">Resultados 2026</option></select><span class="badge">Motivo e plano são editáveis e salvos neste navegador</span></div><div id="forecast-cards" class="forecast-cards card-pad"></div></div></section>
+<section class="section"><div class="section-head"><h3>Resultados 2026 de fechamento do CRM</h3></div><div class="note">Esta seção preserva a base de oportunidades do Resultados 2026 original. Ela não é somada ao “realizado” das planilhas, evitando dupla contagem. Os motivos específicos de não assinatura não constam nos anexos; por isso, aparecem como pendentes de validação. Os planos de ação são recomendações gerenciais.</div><div class="kpis" id="crm-kpis" style="margin-top:12px"></div><div class="card" style="margin-top:12px"><div class="filters card-pad"><input id="forecast-search" class="input" placeholder="Pesquisar empresa ou responsável"><span class="badge">Motivo e plano são editáveis e salvos neste navegador</span></div><div id="forecast-cards" class="month-cards card-pad"></div></div></section>
 
 <section class="section"><div class="section-head"><h3>Conversão do funil no CRM</h3></div><div id="funnel"></div></section>
 
@@ -440,21 +441,27 @@ function renderCompanies(){
 }
 const C=DATA.crm;const potential=C.pending_value+C.forecast_value;const crmK=[['Pendente de assinatura',C.pending_count,fmt.format(C.pending_value),'warn'],['Forecast',C.forecast_count,fmt.format(C.forecast_value),'blue'],['Potencial de fechamento',C.pending_count+C.forecast_count,fmt.format(potential),'good'],['Confirmado no Forecast original',C.kpis.vendas_confirmadas_count,C.kpis.vendas_confirmadas_valor_fmt,'good']];document.getElementById('crm-kpis').innerHTML=crmK.map(k=>`<div class="kpi ${k[3]}"><div class="label">${k[0]}</div><div class="value">${k[1]}</div><div class="sub">${k[2]}</div></div>`).join('');
 let saved={};try{saved=JSON.parse(localStorage.getItem('totalTrackForecastEdits')||'{}')}catch(e){saved={}};function actionKey(x,i){return `${x.grupo}|${x.empresa}|${i}`};
+const FORECAST_GROUPS=[['Pendente de assinatura','Pendente de assinatura'],['Forecast','Resultados 2026']];
 function renderForecast(){
-  const term=document.getElementById('forecast-search').value.trim().toLocaleLowerCase('pt-BR'),status=document.getElementById('forecast-status').value;
-  const rows=DATA.actions.map((x,i)=>({...x,_i:i})).filter(x=>(!status||x.grupo===status)&&[x.empresa,x.responsavel,x.origem].join(' ').toLocaleLowerCase('pt-BR').includes(term));
-  document.getElementById('forecast-cards').innerHTML=rows.length?rows.map(x=>{
-    const key=actionKey(x,x._i),ed=saved[key]||{},pending=x.grupo.startsWith('Pendente');
-    return `<article class="forecast-card${pending?' pending':''}">
-      <div class="fc-head"><span class="badge ${pending?'warn':'blue'}">${x.grupo==='Forecast'?'Resultados 2026':esc(x.grupo)}</span><span class="fc-valor">${fmt.format(x.valor)}</span></div>
+  const term=document.getElementById('forecast-search').value.trim().toLocaleLowerCase('pt-BR');
+  const html=FORECAST_GROUPS.map(([grupo,label])=>{
+    const rows=DATA.actions.map((x,i)=>({...x,_i:i})).filter(x=>x.grupo===grupo&&[x.empresa,x.responsavel,x.origem].join(' ').toLocaleLowerCase('pt-BR').includes(term));
+    const pending=grupo.startsWith('Pendente');
+    const itemsHtml=rows.length?rows.map(x=>{
+      const key=actionKey(x,x._i),ed=saved[key]||{};
+      return `<article class="forecast-card${pending?' pending':''}">
+      <div class="fc-head"><span class="badge ${pending?'warn':'blue'}">${esc(label)}</span><span class="fc-valor">${fmt.format(x.valor)}</span></div>
       <div class="fc-title">${esc(x.empresa)}</div>
       <div class="fc-meta">${esc(x.responsavel)} · ${esc(x.origem)}</div>
       <div class="fc-field"><div class="fc-label">Motivo da não assinatura</div><div class="editable" contenteditable="true" data-edit="motivo" data-key="${esc(key)}">${esc(ed.motivo||x.motivo)}</div></div>
       <div class="fc-field"><div class="fc-label">Plano de ação</div><div class="editable" contenteditable="true" data-edit="plano" data-key="${esc(key)}">${esc(ed.plano||x.plano)}</div></div>
     </article>`;
-  }).join(''):'<div class="empty">Nenhuma oportunidade encontrada.</div>';
+    }).join(''):'<div class="empty">Nenhuma oportunidade encontrada.</div>';
+    return `<details class="month-card"><summary class="month-card-summary"><span>${esc(label)} <span class="badge" style="margin-left:6px">${rows.length}</span></span><span class="mc-arrow">▾</span></summary><div class="forecast-cards">${itemsHtml}</div></details>`;
+  }).join('');
+  document.getElementById('forecast-cards').innerHTML=html;
 }
-document.getElementById('forecast-search').addEventListener('input',renderForecast);document.getElementById('forecast-status').addEventListener('change',renderForecast);document.getElementById('forecast-cards').addEventListener('input',e=>{const c=e.target.closest('[data-edit]');if(!c)return;const key=c.dataset.key;saved[key]=saved[key]||{};saved[key][c.dataset.edit]=c.innerText.trim();try{localStorage.setItem('totalTrackForecastEdits',JSON.stringify(saved))}catch(e){}});
+document.getElementById('forecast-search').addEventListener('input',renderForecast);document.getElementById('forecast-cards').addEventListener('input',e=>{const c=e.target.closest('[data-edit]');if(!c)return;const key=c.dataset.key;saved[key]=saved[key]||{};saved[key][c.dataset.edit]=c.innerText.trim();try{localStorage.setItem('totalTrackForecastEdits',JSON.stringify(saved))}catch(e){}});
 function renderFunnel(){
   const groups=[];
   C.funil.forEach(f=>{let g=groups.find(x=>x.grupo===f.grupo);if(!g){g={grupo:f.grupo,stages:[]};groups.push(g)}g.stages.push(f)});
