@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Forecast Comercial — Atlas GR</title>
+<title>Gestão Comercial — Atlas GR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -390,6 +390,40 @@
   table.vendor-monthly thead th{background:var(--dark);color:#fff;font-weight:700;font-size:11px;text-transform:uppercase;}
   table.vendor-monthly tbody tr:hover td{background:var(--surface-alt);}
   table.vendor-monthly td.zero{color:var(--ink-muted);}
+
+  /* Navegação por página — uma seção por tela, para apresentar os dados aos poucos */
+  .pgv-page{display:none;}
+  .pgv-page.pgv-active{display:block;animation:pgv-fade-in .25s ease;}
+  @keyframes pgv-fade-in{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  main{padding-bottom:86px;}
+  .pgv-nav{
+    position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:500;
+    display:flex;align-items:center;gap:14px;
+    background:var(--dark);color:#fff;
+    padding:9px 16px;border-radius:999px;box-shadow:0 12px 30px rgba(0,0,0,.28);
+  }
+  .pgv-btn{
+    appearance:none;border:none;cursor:pointer;color:#fff;background:rgba(255,255,255,.14);
+    width:32px;height:32px;border-radius:50%;font-size:16px;line-height:1;flex:none;
+    display:flex;align-items:center;justify-content:center;transition:background .12s ease;
+  }
+  .pgv-btn:hover{background:rgba(255,255,255,.26);}
+  .pgv-btn:disabled{opacity:.35;cursor:default;background:rgba(255,255,255,.14);}
+  .pgv-info{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:150px;}
+  .pgv-info .pgv-label{font-size:12.5px;font-weight:700;white-space:nowrap;}
+  .pgv-info .pgv-count{font-size:10.5px;color:#c9ccd0;}
+  .pgv-dots{display:flex;align-items:center;gap:6px;}
+  .pgv-dot{width:7px;height:7px;padding:0;border:none;border-radius:50%;background:rgba(255,255,255,.32);cursor:pointer;transition:all .15s ease;}
+  .pgv-dot.pgv-dot-active{background:var(--orange);width:20px;border-radius:5px;}
+  @media (max-width:640px){
+    .pgv-nav{gap:8px;padding:8px 12px;}
+    .pgv-info{min-width:0;}
+    .pgv-dots{display:none;}
+  }
+  @media print{
+    .pgv-page{display:block !important;}
+    .pgv-nav{display:none !important;}
+  }
 </style>
 </head>
 <body>
@@ -398,14 +432,25 @@
   <div class="brand">
     <div class="brand-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 174.78"><defs><style>.cls-1{fill:#333;}.cls-2{fill:#ff5618;}</style></defs><title>atlas</title><g id="Camada_2" data-name="Camada 2"><g id="Camada_1-2" data-name="Camada 1"><path class="cls-1" d="M403.66,171.69l-10-28.49h-57l-9.78,28.49H294.09L350.17,21.5h29.14L437.2,171.69ZM365,61.19l-18.66,53.73H383.9Z"/><path class="cls-1" d="M494.61,145.14h13.58v26.55H487q-18.16,0-28.69-10.53t-10.53-28.89v-47h-21.4V78.88L472.8,32.47h4.35V61.31h31v24H477.65v43q0,8.08,4.39,12.47t12.57,4.39"/><rect class="cls-1" x="529.49" y="21.5" width="29.84" height="150.2"/><path class="cls-1" d="M670.83,61.12h22.36V171.49H669.73l-2.59-9.88q-15.07,13.17-35.73,13.17a58.64,58.64,0,0,1-29.64-7.58,54.09,54.09,0,0,1-20.76-21,60.29,60.29,0,0,1-7.48-29.89A59.58,59.58,0,0,1,581,86.61a53.89,53.89,0,0,1,20.76-20.85,58.92,58.92,0,0,1,29.64-7.54q21.06,0,36.23,13.47ZM612.3,137.91q8.54,8.63,21.51,8.63t21.5-8.58q8.54-8.58,8.54-21.66t-8.54-21.65q-8.52-8.58-21.5-8.59T612.3,94.7q-8.53,8.63-8.53,21.6t8.53,21.61"/><path class="cls-1" d="M753.69,174.78q-20.75,0-33.48-10.82t-12.82-28.6h29q.11,7.09,5.14,10.88T754.89,150A20.3,20.3,0,0,0,766,147.14a9.17,9.17,0,0,0,4.54-8.18,7.43,7.43,0,0,0-1.55-4.69,11.43,11.43,0,0,0-4.84-3.35,43.86,43.86,0,0,0-6.48-2.09q-3.2-.75-8.39-1.65-4.68-.8-7.88-1.45t-7.73-1.94a44.3,44.3,0,0,1-7.64-2.85,43.08,43.08,0,0,1-6.54-4.14,23,23,0,0,1-5.49-5.74,29.62,29.62,0,0,1-3.39-7.63,34.21,34.21,0,0,1-1.35-9.88,31.18,31.18,0,0,1,12.28-25.5q12.27-9.82,32.13-9.83t32,10.13q12.07,10.13,12.17,26.7H769.56q-.09-6.49-4.44-9.78T752.9,82q-6.9,0-10.83,2.9a9.07,9.07,0,0,0-3.94,7.68,7.92,7.92,0,0,0,.64,3.25,5.9,5.9,0,0,0,2.3,2.49q1.65,1,3.09,1.8a22.06,22.06,0,0,0,4.39,1.49c2,.5,3.56.87,4.79,1.1l5.64,1q16.07,2.89,23.16,6,17.86,8,17.86,27.94,0,16.86-12.67,27t-33.64,10.12"/><polygon class="cls-2" points="153.4 87.56 167.65 62.87 167.68 62.85 178.13 44.72 178.11 44.68 178.15 44.68 203.95 0 182.97 0 152.31 0 110.4 0 99.17 0 73.37 44.68 73.35 44.72 62.87 62.87 48.62 87.56 48.41 87.94 0 171.76 83.81 171.76 104.78 171.76 125.74 135.49 125.76 135.44 153.19 87.94 153.4 87.56"/><polygon class="cls-2" points="203.07 87.94 175.75 87.94 153.9 125.79 153.9 125.83 137.02 155.01 146.7 171.76 209.57 171.76 251.48 171.76 203.07 87.94"/></g></g></svg></div>
     <div class="brand-text">
-      <h1>Atlas GR — Forecast Comercial</h1>
+      <h1>Atlas GR — Gestão Comercial</h1>
       <p>Pipeline Leads → Pipeline Negócios → Pipeline Financeiro</p>
     </div>
   </div>
   <div class="meta-pill" id="meta-pill">Competência —</div>
 </header>
 
+<nav class="pgv-nav" id="pgv-nav">
+  <button class="pgv-btn" id="pgv-prev" aria-label="Página anterior">‹</button>
+  <div class="pgv-info">
+    <span class="pgv-label" id="pgv-label">—</span>
+    <span class="pgv-count" id="pgv-count">—</span>
+  </div>
+  <div class="pgv-dots" id="pgv-dots"></div>
+  <button class="pgv-btn" id="pgv-next" aria-label="Próxima página">›</button>
+</nav>
+
 <main>
+  <div class="pgv-page pgv-active" id="pgv-1" data-pgv-label="Visão Geral">
   <div class="hero" id="hero"></div>
 
   <div class="note">
@@ -415,18 +460,27 @@
     quando o CNPJ não aparece, é porque o cadastro no Bitrix24 não tem esse campo preenchido, não uma omissão deste
     relatório.
   </div>
+  </div>
 
+  <div class="pgv-page" id="pgv-2" data-pgv-label="Taxa de Conversão">
   <div class="section-title"><h2>Taxa de conversão por etapa do funil</h2><div class="rule"></div></div>
   <div class="funil-wrap" id="funil"></div>
+  </div>
 
+  <div class="pgv-page" id="pgv-3" data-pgv-label="Funil por Vendedor">
   <div class="section-title"><h2>Funil de cada etapa — visão geral e por vendedor</h2><div class="rule"></div></div>
   <div id="funis-detalhados"></div>
+  </div>
 
+  <div class="pgv-page" id="pgv-4" data-pgv-label="Visão Geral por Item">
   <div class="section-title"><h2>Visão geral por item — clique no card para ver todos os registros</h2><div class="rule"></div></div>
   <div class="grid" id="grid"></div>
+  </div>
 
+  <div class="pgv-page" id="pgv-5" data-pgv-label="Meta x Vendido">
   <div class="section-title"><h2>Meta x Vendido — 2026</h2><div class="rule"></div></div>
   <div id="meta-vendido"></div>
+  </div>
 </main>
 
 <footer>Gerado a partir de dados reais extraídos do Bitrix24 (webhook AUDITORIA_COMERCIAL_MENSAL_ATLASGR). Nenhum valor nesta página é estimado ou inventado.</footer>
@@ -453,7 +507,7 @@ function brl(v){
   return 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 
-document.getElementById('meta-pill').textContent = `Competência ${DATA.competencia} · gerado em ${new Date(DATA.gerado_em).toLocaleString('pt-BR')}`;
+document.getElementById('meta-pill').textContent = `Competência ${DATA.competencia}`;
 
 const heroEl = document.getElementById('hero');
 const heroTiles = [
@@ -970,7 +1024,7 @@ details.kv-details table{margin-top:0 !important;}
 .deck-action-btn .dl-icon{font-size:14px;}
 </style>
 
-<div class="updates-wrap">
+<div class="updates-wrap pgv-page" id="pgv-6" data-pgv-label="Apresentação dos Resultados">
 <div class="section-title"><h2>Apresentação dos Resultados de Julho</h2><div class="rule"></div></div>
 <div class="deck-actions">
   <button class="deck-action-btn" id="btn-download-pptx"><span class="dl-icon">⬇</span> Baixar apresentação (.pptx)</button>
@@ -1500,6 +1554,52 @@ details.kv-details table{margin-top:0 !important;}
   document.getElementById('btn-download-xlsx').addEventListener('click', downloadPlanilhaXlsx);
 
   renderForecastAtualizado();
+})();
+</script>
+
+<script>
+(function(){
+  // Navegação por página — mostra uma seção por tela, para apresentar os dados aos poucos.
+  var pages = Array.prototype.slice.call(document.querySelectorAll('.pgv-page'));
+  if (!pages.length) return;
+  var current = 0;
+  var navEl = document.getElementById('pgv-nav');
+  var labelEl = document.getElementById('pgv-label');
+  var countEl = document.getElementById('pgv-count');
+  var dotsEl = document.getElementById('pgv-dots');
+  var prevBtn = document.getElementById('pgv-prev');
+  var nextBtn = document.getElementById('pgv-next');
+
+  dotsEl.innerHTML = pages.map(function(_, i){
+    return '<button class="pgv-dot" data-i="' + i + '" aria-label="Ir para página ' + (i + 1) + '"></button>';
+  }).join('');
+  var dots = Array.prototype.slice.call(dotsEl.querySelectorAll('.pgv-dot'));
+
+  function show(i){
+    if (i < 0 || i >= pages.length) return;
+    pages[current].classList.remove('pgv-active');
+    current = i;
+    pages[current].classList.add('pgv-active');
+    labelEl.textContent = pages[current].getAttribute('data-pgv-label') || ('Página ' + (current + 1));
+    countEl.textContent = (current + 1) + ' de ' + pages.length;
+    dots.forEach(function(d, di){ d.classList.toggle('pgv-dot-active', di === current); });
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === pages.length - 1;
+    if (navEl && typeof navEl.scrollIntoView !== 'function') {}
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  prevBtn.addEventListener('click', function(){ show(current - 1); });
+  nextBtn.addEventListener('click', function(){ show(current + 1); });
+  dots.forEach(function(d){
+    d.addEventListener('click', function(){ show(Number(d.getAttribute('data-i'))); });
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight') show(current + 1);
+    if (e.key === 'ArrowLeft') show(current - 1);
+  });
+
+  show(0);
 })();
 </script>
 </body>
