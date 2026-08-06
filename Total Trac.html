@@ -196,6 +196,14 @@ tbody tr:hover td{background:#F0FAFE}
 @media(max-width:650px){.funnel-summary-value{font-size:21px}}
 
 /* Cards de empresas e produtos */
+.month-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:14px;align-items:start}
+.month-card{background:#fff;border:1px solid #DCE8EF;border-radius:14px;box-shadow:0 8px 18px rgba(45,59,120,.07);overflow:hidden}
+.month-card-summary{cursor:pointer;list-style:none;padding:13px 15px;display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:900;color:var(--tt-primary-deep);user-select:none}
+.month-card-summary::-webkit-details-marker{display:none}
+.month-card-summary .mc-arrow{font-size:11px;color:var(--muted);transition:transform .2s ease}
+.month-card[open] .mc-arrow{transform:rotate(180deg)}
+.month-card[open] .month-card-summary{border-bottom:1px solid #E3ECF2}
+.month-card .company-cards{grid-template-columns:1fr;margin-top:0;padding:13px 15px}
 .company-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin-top:14px}
 .company-card{background:#fff;border:1px solid #DCE8EF;border-radius:14px;padding:13px 15px;box-shadow:0 8px 18px rgba(45,59,120,.07);display:flex;flex-direction:column;gap:9px}
 .company-card .cc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -307,7 +315,7 @@ tbody tr:hover td{background:#F0FAFE}
   <div id="vendor-cards" class="vendor-cards"></div>
 </section>
 
-<section class="section"><div class="section-head"><h3>Empresas e produtos das planilhas anexadas</h3></div><div class="card"><div class="tabs" id="month-tabs"></div><div class="card-pad"><div class="filters"><input id="company-search" class="input" placeholder="Pesquisar empresa, produto ou vendedor"><span class="badge" id="company-count"></span></div><div id="company-cards" class="company-cards"></div></div></div></section>
+<section class="section"><div class="section-head"><h3>Empresas e produtos</h3></div><div class="card"><div class="card-pad"><div class="filters"><input id="company-search" class="input" placeholder="Pesquisar empresa, produto ou vendedor"><span class="badge" id="company-count"></span></div><div id="company-cards" class="month-cards"></div></div></div></section>
 
 <section class="section"><div class="section-head"><h3>Resultados 2026 de fechamento do CRM</h3></div><div class="note">Esta seção preserva a base de oportunidades do Resultados 2026 original. Ela não é somada ao “realizado” das planilhas, evitando dupla contagem. Os motivos específicos de não assinatura não constam nos anexos; por isso, aparecem como pendentes de validação. Os planos de ação são recomendações gerenciais.</div><div class="kpis" id="crm-kpis" style="margin-top:12px"></div><div class="card" style="margin-top:12px"><div class="filters card-pad"><input id="forecast-search" class="input" placeholder="Pesquisar empresa ou responsável"><select id="forecast-status" class="select"><option value="">Todos os grupos</option><option>Pendente de assinatura</option><option value="Forecast">Resultados 2026</option></select><span class="badge">Motivo e plano são editáveis e salvos neste navegador</span></div><div id="forecast-cards" class="forecast-cards card-pad"></div></div></section>
 
@@ -406,12 +414,15 @@ function renderVendorCards(){
   }).join('');
 }
 renderVendorCards();
-let activeMonth='Julho';const tabs=document.getElementById('month-tabs');tabs.innerHTML=Object.keys(DATA.month_groups).map(m=>`<button class="tab ${m===activeMonth?'active':''}" data-month="${m}">${m}</button>`).join('');tabs.addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;activeMonth=b.dataset.month;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));renderCompanies()});document.getElementById('company-search').addEventListener('input',renderCompanies);
+document.getElementById('company-search').addEventListener('input',renderCompanies);
 function renderCompanies(){
   const term=document.getElementById('company-search').value.trim().toLocaleLowerCase('pt-BR');
-  const list=(DATA.month_groups[activeMonth]||[]).filter(x=>[x.empresa,...x.produtos,...x.vendedores].join(' ').toLocaleLowerCase('pt-BR').includes(term));
-  document.getElementById('company-count').textContent=`${list.length} empresa${list.length===1?'':'s'} em ${activeMonth}`;
-  document.getElementById('company-cards').innerHTML=list.length?list.map(x=>`<article class="company-card">
+  const months=Object.keys(DATA.month_groups);
+  let totalCount=0;
+  const html=months.map(m=>{
+    const list=(DATA.month_groups[m]||[]).filter(x=>[x.empresa,...x.produtos,...x.vendedores].join(' ').toLocaleLowerCase('pt-BR').includes(term));
+    totalCount+=list.length;
+    const itemsHtml=list.length?list.map(x=>`<article class="company-card">
     <div class="cc-head"><div><div class="cc-title">${esc(x.empresa)}</div><div class="cc-vendor">${x.vendedores.map(esc).join(', ')}</div></div>
       <div class="cc-badges">${x.classificacoes.length?x.classificacoes.map(c=>`<span class="badge${c==='Novo'?' good':''}">${esc(c)}</span>`).join(''):'<span class="badge">Não informada</span>'}</div>
     </div>
@@ -422,6 +433,10 @@ function renderCompanies(){
     </div>
     <div class="cc-products">${x.produtos.map(esc).join(' · ')}</div>
   </article>`).join(''):'<div class="empty">Nenhum registro encontrado.</div>';
+    return `<details class="month-card"><summary class="month-card-summary"><span>${esc(m)} <span class="badge" style="margin-left:6px">${list.length}</span></span><span class="mc-arrow">▾</span></summary><div class="company-cards">${itemsHtml}</div></details>`;
+  }).join('');
+  document.getElementById('company-count').textContent=`${totalCount} empresa${totalCount===1?'':'s'} no total`;
+  document.getElementById('company-cards').innerHTML=html;
 }
 const C=DATA.crm;const potential=C.pending_value+C.forecast_value;const crmK=[['Pendente de assinatura',C.pending_count,fmt.format(C.pending_value),'warn'],['Forecast',C.forecast_count,fmt.format(C.forecast_value),'blue'],['Potencial de fechamento',C.pending_count+C.forecast_count,fmt.format(potential),'good'],['Confirmado no Forecast original',C.kpis.vendas_confirmadas_count,C.kpis.vendas_confirmadas_valor_fmt,'good']];document.getElementById('crm-kpis').innerHTML=crmK.map(k=>`<div class="kpi ${k[3]}"><div class="label">${k[0]}</div><div class="value">${k[1]}</div><div class="sub">${k[2]}</div></div>`).join('');
 let saved={};try{saved=JSON.parse(localStorage.getItem('totalTrackForecastEdits')||'{}')}catch(e){saved={}};function actionKey(x,i){return `${x.grupo}|${x.empresa}|${i}`};
