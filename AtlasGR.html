@@ -71,7 +71,7 @@
 
   .hero{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(255px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
     gap:14px;
     margin-bottom:30px;
   }
@@ -84,20 +84,15 @@
     position:relative;
     overflow:hidden;
     cursor:pointer;
-    display:flex;
-    flex-direction:column;
     transition:transform .12s ease, box-shadow .12s ease;
   }
   .hero-tile:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(34,38,43,0.10), 0 14px 30px rgba(34,38,43,0.12);}
-  .hero-tile .cta{font-size:11px;font-weight:700;color:var(--orange);margin-top:10px;}
+  .hero-tile .cta{font-size:11px;font-weight:700;color:var(--orange);margin-top:8px;}
   .hero-tile.highlight{border-color:var(--good);border-width:2px;}
   .hero-tile .label{font-size:12px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.5px;}
   .hero-tile .value{font-size:26px;font-weight:800;color:var(--ink);margin-top:6px;}
   .hero-tile.highlight .value{color:var(--good);}
   .hero-tile .sub{font-size:12.5px;color:var(--ink-secondary);margin-top:4px;}
-  .hero-tile .explica{font-size:11.5px;color:var(--ink-secondary);margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);line-height:1.5;}
-  .hero-tile .acao{font-size:11.5px;color:var(--ink);background:var(--surface-alt);border-left:3px solid var(--orange);border-radius:6px;padding:7px 9px;margin-top:8px;line-height:1.45;}
-  .hero-tile .acao b{color:var(--orange-3);text-transform:uppercase;font-size:9.5px;letter-spacing:.4px;display:block;margin-bottom:2px;}
 
   .section-title{
     display:flex;align-items:baseline;gap:10px;
@@ -236,63 +231,6 @@
   .funil-tile .fv{font-size:24px;font-weight:800;color:var(--ink);margin-top:4px;}
   .funil-bar{height:6px;border-radius:4px;background:var(--neutral-bg);margin-top:8px;overflow:hidden;}
   .funil-bar-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--orange-3));border-radius:4px;}
-
-  /* Texto de apoio no topo de cada página */
-  .page-intro{font-size:13px;color:var(--ink-secondary);max-width:820px;margin:-6px 0 20px;line-height:1.55;}
-
-  /* Dashboard visual do funil — barras decrescentes por pipeline, com dados reais */
-  .funnel-chart{
-    display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-bottom:26px;
-  }
-  .funnel-card{
-    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-    padding:18px 20px 20px;box-shadow:var(--shadow);
-  }
-  .funnel-card .fc-head{font-size:11px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;}
-  .funnel-step{margin-bottom:12px;}
-  .funnel-step:last-child{margin-bottom:0;}
-  .funnel-step-row{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:5px;}
-  .funnel-step-row .fs-count{font-size:15px;font-weight:800;}
-  .funnel-step-row .fs-drop{font-size:10.5px;font-weight:700;color:var(--crit);}
-  .funnel-step-track{height:26px;background:var(--surface-alt);border-radius:7px;overflow:hidden;}
-  .funnel-step-fill{
-    height:100%;border-radius:7px;
-    background:linear-gradient(90deg,var(--orange),var(--orange-3));
-    display:flex;align-items:center;
-    transition:width .3s ease;
-    min-width:34px;
-  }
-  .funnel-card:nth-child(2) .funnel-step-fill{background:linear-gradient(90deg,#2E5AAC,#4A7FD6);}
-  .funnel-card:nth-child(3) .funnel-step-fill{background:linear-gradient(90deg,var(--good),#57C77E);}
-
-  /* Diagnóstico do funil — fatores de perda calculados a partir dos dados reais */
-  .diag-funil-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin:18px 0 26px;}
-  .diag-factor-card{
-    background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--crit);
-    border-radius:12px;padding:15px 16px;box-shadow:var(--shadow);
-  }
-  .diag-factor-card.warn{border-left-color:var(--warn);}
-  .diag-factor-card .df-count{font-size:26px;font-weight:800;color:var(--ink);}
-  .diag-factor-card .df-count small{font-size:13px;font-weight:700;color:var(--ink-muted);}
-  .diag-factor-card .df-label{font-size:12.5px;font-weight:700;color:var(--ink);margin-top:2px;}
-  .diag-factor-card .df-desc{font-size:11px;color:var(--ink-secondary);margin-top:5px;line-height:1.5;}
-  .diag-factor-card .df-bar{height:5px;border-radius:4px;background:var(--neutral-bg);margin-top:10px;overflow:hidden;}
-  .diag-factor-card .df-bar-fill{height:100%;border-radius:4px;background:var(--crit);}
-  .diag-factor-card.warn .df-bar-fill{background:var(--warn);}
-
-  .diag-vendors{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;box-shadow:var(--shadow);margin-bottom:8px;}
-  .diag-vendors .dv-title{font-size:12px;font-weight:800;color:var(--ink);margin-bottom:2px;}
-  .diag-vendors .dv-note{font-size:11.5px;color:var(--ink-secondary);margin-bottom:12px;}
-  .dv-row{display:grid;grid-template-columns:150px 1fr 70px;gap:12px;align-items:center;margin-bottom:9px;}
-  .dv-row:last-child{margin-bottom:0;}
-  .dv-row .dv-name{font-size:12.5px;font-weight:700;color:var(--ink);}
-  .dv-row .dv-track{height:14px;background:var(--neutral-bg);border-radius:7px;overflow:hidden;position:relative;}
-  .dv-row .dv-fill{height:100%;border-radius:7px;background:var(--crit);}
-  .dv-row.above .dv-fill{background:var(--good);}
-  .dv-row .dv-avg-line{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--dark);}
-  .dv-row .dv-pct{font-size:12.5px;font-weight:800;text-align:right;}
-  .dv-row.above .dv-pct{color:var(--good);}
-  .dv-row:not(.above) .dv-pct{color:var(--crit);}
 
   /* Drawer: card "Total Geral" + cards por vendedor */
   .drawer-summary{margin-bottom:22px;}
@@ -524,16 +462,7 @@
 
   <div class="pgv-page" id="pgv-2" data-pgv-label="Taxa de Conversão">
   <div class="section-title"><h2>Taxa de conversão por etapa do funil</h2><div class="rule"></div></div>
-  <p class="page-intro">Como ler este painel: cada funil abaixo mostra, com dados reais do Bitrix24, quantas empresas avançam (ou somem) de uma etapa para a próxima. A barra encolhe onde há mais perda — é ali que uma ação comercial tem mais impacto.</p>
-  <div class="funnel-chart" id="funnel-chart"></div>
   <div class="funil-wrap" id="funil"></div>
-  </div>
-
-  <div class="pgv-page" id="pgv-diag" data-pgv-label="Diagnóstico do Funil">
-  <div class="section-title"><h2>Diagnóstico do funil — o que está travando cada etapa</h2><div class="rule"></div></div>
-  <p class="page-intro">Cálculo feito em cima dos registros reais do Bitrix24 desta competência: cada fator abaixo é uma contagem de ocorrências reais (não estimativa), extraída diretamente dos negócios e leads do período.</p>
-  <div class="diag-funil-grid" id="diag-funil-grid"></div>
-  <div class="diag-vendors" id="diag-vendors"></div>
   </div>
 
   <div class="pgv-page" id="pgv-3" data-pgv-label="Funil por Vendedor">
@@ -541,8 +470,8 @@
   <div id="funis-detalhados"></div>
   </div>
 
-  <div class="pgv-page" id="pgv-4" data-pgv-label="Visão Geral por Etapa do Funil">
-  <div class="section-title"><h2>Visão geral por etapa do funil</h2><div class="rule"></div></div>
+  <div class="pgv-page" id="pgv-4" data-pgv-label="Visão Geral por Item">
+  <div class="section-title"><h2>Visão geral por item — clique no card para ver todos os registros</h2><div class="rule"></div></div>
   <div class="grid" id="grid"></div>
   </div>
 
@@ -553,6 +482,8 @@
 
   <div id="pr-root"></div>
 </main>
+
+<footer>Gerado a partir de dados reais extraídos do Bitrix24 (webhook AUDITORIA_COMERCIAL_MENSAL_ATLASGR). Nenhum valor nesta página é estimado ou inventado.</footer>
 
 <div class="overlay" id="overlay">
   <div class="drawer">
@@ -580,26 +511,16 @@ document.getElementById('meta-pill').textContent = `Competência ${DATA.competen
 
 const heroEl = document.getElementById('hero');
 const heroTiles = [
-  {key:'vendas_confirmadas', label:'Vendas confirmadas', value: DATA.kpis.vendas_confirmadas_count, sub: DATA.kpis.vendas_confirmadas_valor_fmt + ' em receita confirmada', highlight:true,
-    explica: 'Contratos assinados no Pipeline Financeiro em julho/2026 — a única etapa em que uma venda é contabilizada, evitando dupla contagem com "aprovado internamente".',
-    acao: 'Usar os 20 casos fechados como referência de playbook (abordagem, objeções e tempo de ciclo) para os vendedores com menor conversão.'},
-  {key:'pipeline_aberto', label:'Pipeline em aberto (potencial)', value: DATA.kpis.pipeline_aberto_count, sub: DATA.kpis.pipeline_aberto_valor_fmt + ' em potencial',
-    explica: 'Oportunidades que já entraram em algum funil comercial e ainda não foram fechadas nem perdidas — é a receita que pode ser confirmada nos próximos meses.',
-    acao: 'Priorizar follow-up das propostas mais antigas do Pipeline Negócios antes que esfriem e revisar as que estão paradas há mais tempo.'},
-  {key:'taxa_conversao', label:'Taxa de conversão geral', value: DATA.kpis.taxa_conversao_geral, sub: 'lead → contrato assinado',
-    explica: 'Percentual de leads recebidos que, ao final de todo o funil, viram contrato assinado — mede a eficiência ponta a ponta da operação comercial.',
-    acao: 'Ver a página "Taxa de Conversão" para identificar em qual etapa a perda é maior e concentrar esforço ali.'},
-  {key:'cobertura_cnpj', label:'Cobertura de CNPJ no CRM', value: DATA.kpis.cnpj_cobertura, sub: 'clientes do Pipeline Financeiro com CNPJ cadastrado no Bitrix24',
-    explica: 'Mostra quantos clientes com contrato assinado têm o CNPJ registrado no CRM — dado essencial para faturamento, compliance e cruzamento de informações.',
-    acao: 'Padronizar o preenchimento do CNPJ no Bitrix24 no momento da assinatura do contrato, antes de arquivar a oportunidade.'},
+  {key:'vendas_confirmadas', label:'Vendas confirmadas', value: DATA.kpis.vendas_confirmadas_count, sub: DATA.kpis.vendas_confirmadas_valor_fmt + ' em receita confirmada', highlight:true},
+  {key:'pipeline_aberto', label:'Pipeline em aberto (forecast)', value: DATA.kpis.pipeline_aberto_count, sub: DATA.kpis.pipeline_aberto_valor_fmt + ' em potencial'},
+  {key:'taxa_conversao', label:'Taxa de conversão geral', value: DATA.kpis.taxa_conversao_geral, sub: 'lead → contrato assinado'},
+  {key:'cobertura_cnpj', label:'Cobertura de CNPJ no CRM', value: DATA.kpis.cnpj_cobertura, sub: 'clientes do Pipeline Financeiro com CNPJ cadastrado no Bitrix24'},
 ];
 heroEl.innerHTML = heroTiles.map(t => `
   <div class="hero-tile ${t.highlight?'highlight':''}" data-hero-key="${t.key}">
     <div class="label">${t.label}</div>
     <div class="value">${t.value}</div>
     <div class="sub">${t.sub}</div>
-    ${t.explica ? `<div class="explica">${t.explica}</div>` : ''}
-    ${t.acao ? `<div class="acao"><b>Ação recomendada</b>${t.acao}</div>` : ''}
     <div class="cta">Ver lista de julho/2026 →</div>
   </div>
 `).join('');
@@ -709,7 +630,7 @@ heroEl.addEventListener('click', (e) => {
     const b = findCard('fin_processo');
     const combo = {
       id: 'pipeline_aberto_combo',
-      titulo: 'Pipeline em Aberto (Potencial)',
+      titulo: 'Pipeline em Aberto (Forecast)',
       descricao: 'Soma de "Em Negociação" (Pipeline Negócios) + "Em Processo no Pipeline Financeiro" — oportunidades ainda não fechadas, visão do momento atual.',
       count: a.count + b.count,
       valor: a.valor + b.valor,
@@ -724,34 +645,6 @@ heroEl.addEventListener('click', (e) => {
   }
 });
 
-// ---- Dashboard visual do funil: barras decrescentes com contagem real por etapa ----
-const funnelChartEl = document.getElementById('funnel-chart');
-if (funnelChartEl && Array.isArray(DATA.funis)) {
-  funnelChartEl.innerHTML = DATA.funis.map(grupo => {
-    const base = grupo.overview[0] ? grupo.overview[0].count : 0;
-    const steps = grupo.overview.map((st, i) => {
-      const pct = base ? Math.max(6, Math.round(100 * st.count / base)) : 0;
-      const prev = i > 0 ? grupo.overview[i - 1].count : null;
-      const drop = prev ? Math.round(100 * (prev - st.count) / prev) : null;
-      return `
-        <div class="funnel-step">
-          <div class="funnel-step-row">
-            <span>${st.etapa}</span>
-            <span class="fs-count">${st.count}${drop !== null && drop > 0 ? ` <span class="fs-drop">−${drop}%</span>` : ''}</span>
-          </div>
-          <div class="funnel-step-track"><div class="funnel-step-fill" style="width:${pct}%"></div></div>
-        </div>
-      `;
-    }).join('');
-    return `
-      <div class="funnel-card">
-        <div class="fc-head">${grupo.nome}</div>
-        ${steps}
-      </div>
-    `;
-  }).join('');
-}
-
 // ---- Taxa de conversão (tiles) ----
 const funilEl = document.getElementById('funil');
 funilEl.innerHTML = DATA.funil.map(f => `
@@ -762,125 +655,6 @@ funilEl.innerHTML = DATA.funil.map(f => `
     <div class="funil-bar"><div class="funil-bar-fill" style="width:${Math.min(100,f.pct)}%"></div></div>
   </div>
 `).join('');
-
-// ---- Diagnóstico do funil: agrega os diagnósticos reais (por registro) em fatores de perda ----
-// Agrega os diagnósticos reais (por registro) em fatores de perda do funil — usada pela
-// página "Diagnóstico do Funil" e reaproveitada na Apresentação dos Resultados.
-function computeFunilDiagnostico(){
-  const buckets = {
-    sem_contato: { count: 0, items: [] },
-    desqualificado: { count: 0, items: [] },
-    sem_proposta: { count: 0, items: [] },
-    proposta_lenta: { count: 0, items: [] },
-    perdido_apos_proposta: { count: 0, valor: 0 },
-    cnpj_ausente: { count: 0 },
-  };
-  const vendorRates = {}; // nome -> {taxa, media}
-
-  (DATA.cards || []).forEach(card => {
-    (card.items || []).forEach(it => {
-      (it.diagnostico || []).forEach(d => {
-        if (d.tipo !== 'negativo') return;
-        const t = d.texto;
-        if (t.includes('Sem reunião agendada')) buckets.sem_contato.count++;
-        else if (t.includes('Lead Desqualificado')) buckets.desqualificado.count++;
-        else if (t.includes('Ainda sem proposta formal')) buckets.sem_proposta.count++;
-        else if (t.includes('Proposta levou') && t.includes('acima da média')) buckets.proposta_lenta.count++;
-        else if (t.startsWith('Perdido') && t.includes('dias após a proposta')) { buckets.perdido_apos_proposta.count++; buckets.perdido_apos_proposta.valor += (it.valor || 0); }
-        else if (t.includes('Sem empresa/CNPJ') || t.includes('CNPJ não cadastrado')) buckets.cnpj_ausente.count++;
-        else {
-          const m = t.match(/^(.*?) tem taxa de aprovação de ([\d.,]+)% em propostas, abaixo da média da equipe \(([\d.,]+)%\)/);
-          if (m) vendorRates[m[1]] = { taxa: parseFloat(m[2]), media: parseFloat(m[3]) };
-        }
-      });
-    });
-  });
-
-  const totalLeads = (DATA.cards.find(c => c.id === 'leads') || {}).count || 0;
-  const negNovaOportunidade = (DATA.cards.find(c => c.id === 'avan_aberto') || {}).count || 0;
-  const negAprovado = (DATA.cards.find(c => c.id === 'avan_aprovado') || {}).count || 0;
-  const negPerdido = (DATA.cards.find(c => c.id === 'avan_perdido') || {}).count || 0;
-  const baseNegocios = negNovaOportunidade + negAprovado + negPerdido;
-
-  return { buckets, vendorRates, totalLeads, baseNegocios, negPerdido };
-}
-
-(function renderFunilDiagnostico(){
-  const gridEl = document.getElementById('diag-funil-grid');
-  const vendorsEl = document.getElementById('diag-vendors');
-  if (!gridEl || !vendorsEl) return;
-
-  const { buckets, vendorRates, totalLeads, baseNegocios, negPerdido } = computeFunilDiagnostico();
-  const pctOf = (n, base) => base ? Math.round(n / base * 100) : 0;
-
-  const factors = [
-    {
-      key: 'sem_contato', warn: false, count: buckets.sem_contato.count, base: totalLeads,
-      label: 'Leads sem nenhum contato qualificado',
-      desc: `${buckets.sem_contato.count} dos ${totalLeads} leads recebidos ainda não têm reunião agendada — é a maior fonte de perda no topo do funil.`,
-    },
-    {
-      key: 'desqualificado', warn: true, count: buckets.desqualificado.count, base: totalLeads,
-      label: 'Leads desqualificados pela equipe',
-      desc: `${buckets.desqualificado.count} leads foram marcados como desqualificados em julho, de um total de ${totalLeads} recebidos.`,
-    },
-    {
-      key: 'sem_proposta', warn: true, count: buckets.sem_proposta.count, base: baseNegocios,
-      label: 'Oportunidades sem proposta formal enviada',
-      desc: `${buckets.sem_proposta.count} negócios no Pipeline Negócios ainda não tiveram proposta formal enviada.`,
-    },
-    {
-      key: 'proposta_lenta', warn: true, count: buckets.proposta_lenta.count, base: baseNegocios,
-      label: 'Propostas enviadas com atraso',
-      desc: `${buckets.proposta_lenta.count} propostas levaram mais tempo que a média da equipe para serem enviadas ao cliente.`,
-    },
-    {
-      key: 'perdido_apos_proposta', warn: false, count: buckets.perdido_apos_proposta.count, base: negPerdido || buckets.perdido_apos_proposta.count,
-      label: 'Negócios perdidos após a proposta',
-      desc: `${buckets.perdido_apos_proposta.count} negócios foram perdidos depois da proposta enviada, somando ${brl(buckets.perdido_apos_proposta.valor)} em receita potencial.`,
-    },
-    {
-      key: 'cnpj_ausente', warn: true, count: buckets.cnpj_ausente.count, base: null,
-      label: 'Registros sem CNPJ/empresa associado no CRM',
-      desc: `${buckets.cnpj_ausente.count} registros (leads, reuniões e negócios) estão sem empresa ou CNPJ cadastrado no Bitrix24.`,
-    },
-  ];
-
-  gridEl.innerHTML = factors.filter(f => f.count > 0).map(f => {
-    const pct = f.base ? pctOf(f.count, f.base) : null;
-    return `
-      <div class="diag-factor-card${f.warn ? ' warn' : ''}">
-        <div class="df-count">${f.count}${pct !== null ? ` <small>(${pct}% de ${f.base})</small>` : ''}</div>
-        <div class="df-label">${f.label}</div>
-        <div class="df-desc">${f.desc}</div>
-        ${pct !== null ? `<div class="df-bar"><div class="df-bar-fill" style="width:${Math.min(100, pct)}%"></div></div>` : ''}
-      </div>
-    `;
-  }).join('');
-
-  const vendorEntries = Object.entries(vendorRates);
-  if (vendorEntries.length) {
-    const media = vendorEntries[0][1].media;
-    const maxTaxa = Math.max(media, ...vendorEntries.map(([,v]) => v.taxa));
-    const rows = vendorEntries.sort((a,b) => a[1].taxa - b[1].taxa).map(([nome, v]) => `
-      <div class="dv-row">
-        <div class="dv-name">${nome}</div>
-        <div class="dv-track">
-          <div class="dv-fill" style="width:${maxTaxa ? (v.taxa / maxTaxa * 100) : 0}%"></div>
-          <div class="dv-avg-line" style="left:${maxTaxa ? (media / maxTaxa * 100) : 0}%"></div>
-        </div>
-        <div class="dv-pct">${v.taxa.toFixed(1).replace('.', ',')}%</div>
-      </div>
-    `).join('');
-    vendorsEl.innerHTML = `
-      <div class="dv-title">Taxa de aprovação de propostas por vendedor</div>
-      <div class="dv-note">Percentual de propostas enviadas que avançaram para "Aprovado Internamente". Linha escura marca a média da equipe (${media.toFixed(1).replace('.', ',')}%).</div>
-      ${rows}
-    `;
-  } else {
-    vendorsEl.style.display = 'none';
-  }
-})();
 
 // ---- Funis detalhados (visão geral + por vendedor), com barras ----
 const FUNIL_SHADES = ['var(--orange)', 'var(--orange-3)', 'var(--yellow)', 'var(--neutral)'];
