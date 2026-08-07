@@ -352,27 +352,34 @@
     background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
     padding:22px 24px;margin-bottom:20px;box-shadow:var(--shadow);overflow-x:auto;
   }
-  table.meta-table{border-collapse:collapse;font-size:12px;min-width:100%;}
-  table.meta-table th, table.meta-table td{padding:8px 12px;text-align:right;white-space:nowrap;}
-  table.meta-table th:first-child, table.meta-table td:first-child{
-    text-align:left;position:sticky;left:0;background:inherit;min-width:130px;
-  }
-  table.meta-table thead th{background:var(--dark);color:#fff;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.3px;}
-  table.meta-table tr.row-meta td{background:#FFE3D6;font-weight:700;color:#7a2e10;}
-  table.meta-table tr.row-meta td:first-child{background:var(--orange);color:#fff;}
-  table.meta-table tr.row-vendido td{background:var(--good-bg);font-weight:700;color:#0d5c2d;}
-  table.meta-table tr.row-vendido td:first-child{background:#1D8A45;color:#fff;}
-  table.meta-table tr.row-ajustado td{background:#DCEEE2;font-weight:700;color:#0d5c2d;}
-  table.meta-table tr.row-ajustado td:first-child{background:#3E9E63;color:#fff;}
-  table.meta-table tr.row-pct td{font-weight:700;}
-  table.meta-table tr.row-pct td:first-child{background:var(--neutral);color:#fff;}
-  table.meta-table tr.row-saldo td:first-child{background:var(--neutral);color:#fff;}
-  table.meta-table tr.row-saldo td{font-weight:800;}
-  table.meta-table tr.row-pctmeta td:first-child{background:var(--neutral);color:#fff;}
-  table.meta-table tr.row-pctmeta td{font-weight:700;}
-  table.meta-table td.pos{color:var(--good);background:var(--good-bg);}
-  table.meta-table td.neg{color:var(--crit);background:var(--crit-bg);}
-  table.meta-table td.empty{background:var(--surface-alt);}
+  .month-fx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;}
+  .month-fx-card{background:var(--surface);border:1px solid var(--border);border-top:4px solid var(--neutral);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);}
+  .month-fx-card.status-good{border-top-color:var(--good);}
+  .month-fx-card.status-attention{border-top-color:var(--warn);}
+  .month-fx-card.status-critical{border-top-color:var(--crit);}
+  .month-fx-card.status-pending{border-top-color:var(--border);opacity:.65;}
+  .mfx-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px;}
+  .mfx-month{font-size:15px;font-weight:800;color:var(--dark);text-transform:uppercase;letter-spacing:.4px;}
+  .mfx-badge{font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--neutral-bg);color:var(--neutral);white-space:nowrap;}
+  .mfx-badge.good{background:var(--good-bg);color:var(--good);}
+  .mfx-badge.attention{background:var(--warn-bg);color:var(--warn);}
+  .mfx-badge.critical{background:var(--crit-bg);color:var(--crit);}
+  .mfx-badge.pending{background:var(--surface-alt);color:var(--ink-muted);}
+  .mfx-bar{height:6px;border-radius:4px;background:var(--neutral-bg);overflow:hidden;margin-bottom:12px;}
+  .mfx-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--orange),var(--orange-3));}
+  .mfx-bar-fill.good{background:linear-gradient(90deg,#1D8A45,#3E9E63);}
+  .mfx-bar-fill.attention{background:linear-gradient(90deg,#B9860A,#D9A62B);}
+  .mfx-bar-fill.critical{background:linear-gradient(90deg,#C4432E,#DD6650);}
+  .mfx-stages{display:flex;flex-direction:column;}
+  .mfx-stage{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:6px 0;border-top:1px dashed var(--border);font-size:12.5px;}
+  .mfx-stage:first-child{border-top:none;}
+  .mfx-stage .mfx-k{color:var(--ink-muted);font-weight:600;}
+  .mfx-stage .mfx-v{color:var(--ink);font-weight:700;text-align:right;}
+  .mfx-stage .mfx-v.pos{color:var(--good);}
+  .mfx-stage .mfx-v.neg{color:var(--crit);}
+  .mfx-stage.highlight{border-top:1px solid var(--border);margin-top:2px;padding-top:9px;}
+  .mfx-stage.highlight .mfx-v{font-size:14px;}
+  .mfx-empty{font-size:12.5px;color:var(--ink-muted);font-style:italic;padding:8px 0 2px;}
 
   .quarter-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0;}
   .quarter-tile{border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center;}
@@ -722,30 +729,51 @@ funisEl.addEventListener('click', (e) => {
 });
 
 // ---- Meta x Vendido 2026 ----
-function pctCell(v){
-  if (v === null || v === undefined) return '<td class="empty"></td>';
-  const cls = v > 0 ? 'pos' : (v < 0 ? 'neg' : '');
-  return `<td class="${cls}">${v.toFixed(2).replace('.', ',')}%</td>`;
+function monthFxStatus(pct){
+  if (pct === null || pct === undefined) return 'pending';
+  if (pct >= 100) return 'good';
+  if (pct >= 70) return 'attention';
+  return 'critical';
 }
-function moneyCell(v, cls){
-  if (v === null || v === undefined) return '<td class="empty"></td>';
-  return `<td class="${cls||''}">${brl(v)}</td>`;
-}
-function saldoCell(v){
-  if (v === null || v === undefined) return '<td class="empty"></td>';
-  return `<td class="${v >= 0 ? 'pos' : 'neg'}">${brl(v)}</td>`;
-}
+function pctFmt(v){ return v.toFixed(2).replace('.', ',') + '%'; }
 
 const mv = DATA.meta_vendido;
 const metaEl = document.getElementById('meta-vendido');
 if (mv) {
-  const headerRow = '<th></th>' + mv.meses.map(m => `<th>${m}</th>`).join('');
-  const metaRow = mv.meta.map(v => `<td>${brl(v)}</td>`).join('');
-  const vendidoRow = mv.vendido.map(v => v === null ? '<td class="empty"></td>' : `<td>${brl(v)}</td>`).join('');
-  const ajustadoRow = mv.valor_ajustado.map(v => v === null ? '<td class="empty"></td>' : `<td>${brl(v)}</td>`).join('');
-  const pctAjusteRow = mv.pct_ajuste.map(pctCell).join('');
-  const saldoRow = mv.saldo.map(saldoCell).join('');
-  const pctMetaRow = mv.pct_meta.map(pctCell).join('');
+  const monthCards = mv.meses.map((mes, i) => {
+    const vendido = mv.vendido[i];
+    if (vendido === null || vendido === undefined) {
+      return `
+        <div class="month-fx-card status-pending">
+          <div class="mfx-top">
+            <div class="mfx-month">${mes}</div>
+            <div class="mfx-badge pending">Sem dados</div>
+          </div>
+          <div class="mfx-empty">Ainda sem lançamentos registrados para este mês.</div>
+        </div>
+      `;
+    }
+    const pctMeta = mv.pct_meta[i];
+    const pctAjuste = mv.pct_ajuste[i];
+    const saldo = mv.saldo[i];
+    const status = monthFxStatus(pctMeta);
+    return `
+      <div class="month-fx-card status-${status}">
+        <div class="mfx-top">
+          <div class="mfx-month">${mes}</div>
+          <div class="mfx-badge ${status}">${pctFmt(pctMeta)} da meta</div>
+        </div>
+        <div class="mfx-bar"><div class="mfx-bar-fill ${status}" style="width:${Math.min(100, pctMeta)}%"></div></div>
+        <div class="mfx-stages">
+          <div class="mfx-stage"><span class="mfx-k">Meta</span><span class="mfx-v">${brl(mv.meta[i])}</span></div>
+          <div class="mfx-stage"><span class="mfx-k">Vendido</span><span class="mfx-v">${brl(vendido)}</span></div>
+          <div class="mfx-stage"><span class="mfx-k">Valor ajustado</span><span class="mfx-v">${brl(mv.valor_ajustado[i])}</span></div>
+          <div class="mfx-stage"><span class="mfx-k">% Ajuste</span><span class="mfx-v ${pctAjuste > 0 ? 'pos' : (pctAjuste < 0 ? 'neg' : '')}">${pctFmt(pctAjuste)}</span></div>
+          <div class="mfx-stage highlight"><span class="mfx-k">Saldo</span><span class="mfx-v ${saldo >= 0 ? 'pos' : 'neg'}">${brl(saldo)}</span></div>
+        </div>
+      </div>
+    `;
+  }).join('');
 
   const quarterTiles = [
     {label: '1º Trimestre', v: mv.saldo_1q}, {label: '2º Trimestre', v: mv.saldo_2q},
@@ -772,17 +800,7 @@ if (mv) {
 
   metaEl.innerHTML = `
     <div class="meta-block">
-      <table class="meta-table">
-        <thead><tr>${headerRow}</tr></thead>
-        <tbody>
-          <tr class="row-meta"><td>Meta</td>${metaRow}</tr>
-          <tr class="row-vendido"><td>Vendido</td>${vendidoRow}</tr>
-          <tr class="row-ajustado"><td>Valor ajustado</td>${ajustadoRow}</tr>
-          <tr class="row-pct"><td>% Ajuste</td>${pctAjusteRow}</tr>
-          <tr class="row-saldo"><td>Saldo</td>${saldoRow}</tr>
-          <tr class="row-pctmeta"><td>% Meta</td>${pctMetaRow}</tr>
-        </tbody>
-      </table>
+      <div class="month-fx-grid">${monthCards}</div>
       <div class="quarter-strip">${quarterTiles}</div>
     </div>
     <div class="meta-block">
