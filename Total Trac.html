@@ -762,7 +762,7 @@ renderCompanies();renderForecast();renderDetail();
     p.oc++; p.adesao += r.adesao; p.mensalidade += r.mensalidade;
   });
   var prodRowsArr = Object.keys(prodMap).map(function(k){ return [k, prodMap[k]]; })
-    .sort(function(a,b){ return (b[1].adesao + b[1].mensalidade) - (a[1].adesao + a[1].mensalidade); }).slice(0, 8);
+    .sort(function(a,b){ return (b[1].adesao + b[1].mensalidade) - (a[1].adesao + a[1].mensalidade); });
   var prodTotalGeral = Object.keys(prodMap).reduce(function(a,k){ return a + prodMap[k].adesao + prodMap[k].mensalidade; }, 0);
 
   var empresasPorVendedor = {}, produtoPorCliente = {};
