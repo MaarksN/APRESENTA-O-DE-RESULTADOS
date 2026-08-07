@@ -266,31 +266,35 @@ main{padding-bottom:86px;}
   .pgv-nav{display:none !important;}
 }
 
-/* Apresentação dos Resultados — páginas geradas a partir de DATA */
-.pr-cover{min-height:56vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:linear-gradient(135deg,var(--tt-primary-deep),var(--tt-primary) 60%,var(--tt-accent));border-radius:var(--radius);color:#fff;padding:40px 24px;}
+/* Apresentação dos Resultados — páginas geradas a partir de DATA, no mesmo estilo visual do resto do painel */
+.pr-cover{min-height:52vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:linear-gradient(135deg,var(--tt-primary-deep),var(--tt-primary) 60%,var(--tt-accent));border-radius:var(--radius);color:#fff;padding:48px 24px;box-shadow:var(--shadow);}
 .pr-cover .pr-mark{width:56px;height:auto;margin-bottom:18px;}
-.pr-cover h2{font-size:26px;font-weight:800;margin:0;}
+.pr-cover h2{font-size:28px;font-weight:800;margin:0;}
 .pr-cover p{font-size:13.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin:10px 0 0;opacity:.92;}
-.pr-hero{min-height:48vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 20px;}
-.pr-hero .pr-eyebrow{font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);}
-.pr-hero .pr-value{font-size:52px;font-weight:800;margin-top:12px;line-height:1;color:var(--tt-charcoal);}
-.pr-hero .pr-value.good{color:var(--good);}
-.pr-hero .pr-value.crit{color:var(--crit);}
-.pr-hero .pr-sub{font-size:13.5px;color:var(--muted);margin-top:12px;font-weight:600;}
+.pr-hero{min-height:44vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+.pr-stat-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:40px 56px;text-align:center;min-width:300px;}
+.pr-stat-card .pr-eyebrow{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);}
+.pr-stat-card .pr-value{font-size:48px;font-weight:800;margin-top:12px;line-height:1;color:var(--tt-charcoal);}
+.pr-stat-card .pr-value.good{color:var(--good);}
+.pr-stat-card .pr-value.crit{color:var(--crit);}
+.pr-stat-card .pr-sub{font-size:13px;color:var(--muted);margin-top:12px;font-weight:600;}
 .pr-month-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:14px;}
 .pr-month-card{border:1px solid var(--line);border-radius:12px;padding:12px 13px;background:var(--surface);box-shadow:var(--shadow);}
 .pr-month-card .mc-name{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;}
 .pr-month-card .mc-row{display:flex;justify-content:space-between;font-size:11px;margin-top:5px;color:var(--muted);}
 .pr-month-card .mc-row b{color:var(--ink);}
 .pr-month-card .mc-pct{font-size:13.5px;font-weight:800;margin-top:7px;text-align:right;}
-.pr-table-wrap{margin-top:14px;overflow-x:auto;}
+.pr-table-wrap{margin-top:14px;overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:6px;}
 .pr-table-wrap table{width:100%;border-collapse:collapse;font-size:13px;}
 .pr-table-wrap th{text-align:left;background:var(--dark);color:#fff;padding:9px 11px;font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;}
+.pr-table-wrap th:first-child{border-top-left-radius:9px;}
+.pr-table-wrap th:last-child{border-top-right-radius:9px;}
 .pr-table-wrap td{padding:9px 11px;border-bottom:1px solid var(--line);}
 .pr-table-wrap tfoot td{font-weight:800;border-top:2px solid var(--dark);border-bottom:none;}
-.pr-divider{min-height:44vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 20px;}
-.pr-divider h2{font-size:24px;font-weight:800;color:var(--tt-charcoal);margin:0;}
-.pr-divider p{font-size:13px;color:var(--muted);margin-top:8px;max-width:520px;}
+.pr-divider{min-height:40vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+.pr-divider-card{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--tt-accent);border-radius:var(--radius);box-shadow:var(--shadow);padding:36px 50px;text-align:center;}
+.pr-divider-card h2{font-size:22px;font-weight:800;color:var(--tt-charcoal);margin:0;}
+.pr-divider-card p{font-size:13px;color:var(--muted);margin-top:8px;max-width:480px;}
 .pr-vendor-summary{font-size:14px;font-weight:700;color:var(--muted);margin:-4px 0 16px;}
 .pr-client-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;}
 .pr-client-list li{border:1px solid var(--line);border-radius:10px;padding:11px 13px;background:var(--surface);box-shadow:var(--shadow);font-size:13px;font-weight:700;color:var(--ink);display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
@@ -301,12 +305,13 @@ main{padding-bottom:86px;}
 .pr-kpi-value{font-size:15px;font-weight:800;color:var(--tt-charcoal);margin-top:5px;}
 .pr-bar-track{height:6px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:8px;}
 .pr-bar-fill{height:100%;border-radius:999px;}
-.pr-unavailable{border:1px dashed var(--line);border-radius:var(--radius);padding:34px 26px;text-align:center;background:#faf9f8;}
+.pr-unavailable{border:1px dashed var(--muted);border-radius:var(--radius);padding:34px 26px;text-align:center;background:var(--surface);box-shadow:var(--shadow);}
 .pr-unavailable .pr-icon{font-size:26px;display:block;margin-bottom:10px;}
 .pr-unavailable h3{font-size:15px;font-weight:800;color:var(--tt-charcoal);margin:0 0 8px;}
 .pr-unavailable p{font-size:12.5px;color:var(--muted);max-width:520px;margin:0 auto;line-height:1.6;}
-.pr-closing{min-height:44vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
-.pr-closing .pr-mark{width:60px;height:auto;opacity:.9;}
+.pr-closing{min-height:40vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:var(--tt-charcoal);border-radius:var(--radius);box-shadow:var(--shadow);color:#fff;padding:40px;}
+.pr-closing .pr-mark{width:60px;height:auto;opacity:.95;color:var(--tt-accent);}
+.pr-closing p{color:#c9ccd0;}
 
 </style>
 </head>
@@ -626,20 +631,20 @@ renderCompanies();renderForecast();renderDetail();
   // 3 — Meta Mensal de Julho
   pages.push(setBody(el('pgv-pr-3', 'Meta Mensal de Julho'),
     heading('Meta mensal de julho') +
-    '<div class="pr-hero"><div class="pr-value">' + brl(monthly[JUL].meta) + '</div>' +
-    '<div class="pr-sub">Meta anual 2026: ' + brl(summary.annual_goal) + '</div></div>'));
+    '<div class="pr-hero"><div class="pr-stat-card"><div class="pr-eyebrow">Meta de julho/2026</div><div class="pr-value">' + brl(monthly[JUL].meta) + '</div>' +
+    '<div class="pr-sub">Meta anual 2026: ' + brl(summary.annual_goal) + '</div></div></div>'));
 
   // 4 — Valor Realizado de Julho
   pages.push(setBody(el('pgv-pr-4', 'Valor Realizado de Julho'),
     heading('Valor realizado de julho') +
-    '<div class="pr-hero"><div class="pr-value">' + brl(valorJul) + '</div>' +
-    '<div class="pr-sub">' + pct2(monthly[JUL].pct) + ' da meta mensal' + (deltaJunJul !== null ? ' · ' + (deltaJunJul >= 0 ? '+' : '') + pct2(deltaJunJul) + ' vs. junho' : '') + '</div></div>'));
+    '<div class="pr-hero"><div class="pr-stat-card"><div class="pr-eyebrow">Realizado em julho/2026</div><div class="pr-value">' + brl(valorJul) + '</div>' +
+    '<div class="pr-sub">' + pct2(monthly[JUL].pct) + ' da meta mensal' + (deltaJunJul !== null ? ' · ' + (deltaJunJul >= 0 ? '+' : '') + pct2(deltaJunJul) + ' vs. junho' : '') + '</div></div></div>'));
 
   // 5 — Saldo da Meta Mensal
   pages.push(setBody(el('pgv-pr-5', 'Saldo da Meta Mensal'),
     heading('Saldo da meta mensal de julho') +
-    '<div class="pr-hero"><div class="pr-value ' + (monthly[JUL].saldo >= 0 ? 'good' : 'crit') + '">' + brl(monthly[JUL].saldo) + '</div>' +
-    '<div class="pr-sub">' + (monthly[JUL].saldo >= 0 ? 'Meta superada em ' + pct2(monthly[JUL].pct - 100) : 'Faltam ' + pct2(100 - monthly[JUL].pct) + ' para bater a meta') + '</div></div>'));
+    '<div class="pr-hero"><div class="pr-stat-card"><div class="pr-eyebrow">Saldo de julho/2026</div><div class="pr-value ' + (monthly[JUL].saldo >= 0 ? 'good' : 'crit') + '">' + brl(monthly[JUL].saldo) + '</div>' +
+    '<div class="pr-sub">' + (monthly[JUL].saldo >= 0 ? 'Meta superada em ' + pct2(monthly[JUL].pct - 100) : 'Faltam ' + pct2(100 - monthly[JUL].pct) + ' para bater a meta') + '</div></div></div>'));
 
   // 6 — Meta × Realizado 2026 (reaproveita #monthly-cards: cards reais com pontos de ajuste por mês)
   var p6 = el('pgv-pr-6', 'Meta × Realizado 2026');
@@ -651,8 +656,8 @@ renderCompanies();renderForecast();renderDetail();
   // 7 — Resultado Acumulado 2026
   pages.push(setBody(el('pgv-pr-7', 'Resultado Acumulado 2026'),
     heading('Resultado acumulado 2026 — Janeiro a Julho') +
-    '<div class="pr-hero"><div class="pr-value" style="font-size:38px;">' + brl(summary.realized_ytd) + '</div>' +
-    '<div class="pr-sub">Meta acumulada: ' + brl(summary.goal_ytd) + ' · ' + pct2(summary.attainment_ytd) + ' da meta</div></div>' +
+    '<div class="pr-hero"><div class="pr-stat-card"><div class="pr-eyebrow">Realizado no ano até julho</div><div class="pr-value" style="font-size:38px;">' + brl(summary.realized_ytd) + '</div>' +
+    '<div class="pr-sub">Meta acumulada: ' + brl(summary.goal_ytd) + ' · ' + pct2(summary.attainment_ytd) + ' da meta</div></div></div>' +
     kpiStrip([
       ['Saldo 1º trimestre', brl(q1.saldo)],
       ['Saldo 2º trimestre', brl(q2.saldo)],
@@ -685,7 +690,7 @@ renderCompanies();renderForecast();renderDetail();
 
   // 11 — Divisor: Vendas por Vendedor
   pages.push(setBody(el('pgv-pr-11', 'Vendas por Vendedor · Divisor'),
-    '<div class="pr-divider"><h2>Vendas por vendedor</h2><p>Julho de 2026 · ' + summary.july_clients + ' empresas · ' + brl(valorJul) + '</p></div>'));
+    '<div class="pr-divider"><div class="pr-divider-card"><h2>Vendas por vendedor</h2><p>Julho de 2026 · ' + summary.july_clients + ' empresas · ' + brl(valorJul) + '</p></div></div>'));
 
   // 12–15 — páginas de vendedor
   julySellers.forEach(function(v, idx){
@@ -702,7 +707,7 @@ renderCompanies();renderForecast();renderDetail();
 
   // 16 — Divisor: Vendedores e BDRs
   pages.push(setBody(el('pgv-pr-16', 'Vendedores e BDRs · Divisor'),
-    '<div class="pr-divider"><h2>Vendedores e BDRs</h2><p>Funil de leads — Julho de 2026</p></div>'));
+    '<div class="pr-divider"><div class="pr-divider-card"><h2>Vendedores e BDRs</h2><p>Funil de leads — Julho de 2026</p></div></div>'));
 
   // 17 — Funil de Leads
   pages.push(setBody(el('pgv-pr-17', 'Funil de Leads'),
