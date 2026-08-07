@@ -839,6 +839,37 @@ renderCompanies();renderForecast();renderDetail();
         <div class="pd-slide-list"><ul>${empresas.map(e=>`<li>${esc(e)}</li>`).join('')}</ul></div>
       `});
     });
+
+    // Quantitativo mensal do vendedor no mês anterior — 1 slide por vendedor
+    const prevMonthName = 'Junho';
+    const prevSellersMap = {};
+    (DATA.month_groups[prevMonthName]||[]).forEach(e=>{
+      const v = e.vendedores[0] || 'Não informado';
+      if(!prevSellersMap[v]) prevSellersMap[v] = {vendedor:v, adesao:0, mensalidade:0, itens:0, empresas:0};
+      prevSellersMap[v].adesao += e.adesao;
+      prevSellersMap[v].mensalidade += e.mensalidade;
+      prevSellersMap[v].itens += e.itens;
+      prevSellersMap[v].empresas += 1;
+    });
+    const prevSellers = Object.values(prevSellersMap).sort((a,b)=>(b.adesao+b.mensalidade)-(a.adesao+a.mensalidade));
+    const prevTotal = prevSellers.reduce((a,v)=>a+v.adesao+v.mensalidade,0) || 1;
+    if (prevSellers.length) {
+      slides.push({cls:'on-dark center', html:`
+        <div class="pd-slide-eyebrow">${esc(prevMonthName)} de 2026</div>
+        <div class="pd-slide-big">QUANTITATIVO MENSAL<br>POR VENDEDOR</div>
+      `});
+      prevSellers.forEach(v=>{
+        const valor = v.adesao + v.mensalidade;
+        const share = Math.round(valor/prevTotal*100);
+        slides.push({cls:'on-white center', html:`
+          <div class="pd-slide-eyebrow">Quantitativo mensal — ${esc(prevMonthName)} de 2026</div>
+          <div class="pd-slide-heading">${esc(v.vendedor)}</div>
+          <div class="pd-slide-stat" style="color:var(--tt-accent);">${fmt.format(valor)}</div>
+          <div class="pd-slide-sub">${v.empresas} empresa${v.empresas===1?'':'s'} · ${v.itens} iten${v.itens===1?'':'s'} · ${share}% do total do mês na equipe</div>
+        `});
+      });
+    }
+
     const funilRows = funilGroups.flatMap(g=>g.stages.map(s=>`<tr><td>${esc(g.grupo)}</td><td>${esc(s.de)} → ${esc(s.para)}</td><td>${String(s.pct).replace('.',',')}%</td></tr>`)).join('');
     slides.push({cls:'on-white', html:`
       <div class="pd-slide-eyebrow">Funil de conversão</div>
@@ -948,6 +979,34 @@ renderCompanies();renderForecast();renderDetail();
         s.addText(`${empresas.length} cliente${empresas.length===1?'':'s'} · ${fmt.format(v.adesao+v.mensalidade)}`,{x:0.6,y:1.35,w:12,h:0.4,fontSize:13,bold:true,color:ACCENT});
         s.addText(empresas.map(e=>({text:e,options:{bullet:true,breakLine:true}})),{x:0.6,y:1.95,w:12,h:4.8,fontSize:14,color:INK,paraSpaceAfter:6});
       });
+
+      // Quantitativo mensal do vendedor no mês anterior — 1 slide por vendedor
+      {
+        const prevMonthNamePptx='Junho';
+        const prevSellersMapPptx={};
+        (DATA.month_groups[prevMonthNamePptx]||[]).forEach(e=>{
+          const v=e.vendedores[0]||'Não informado';
+          if(!prevSellersMapPptx[v])prevSellersMapPptx[v]={vendedor:v,adesao:0,mensalidade:0,itens:0,empresas:0};
+          prevSellersMapPptx[v].adesao+=e.adesao;prevSellersMapPptx[v].mensalidade+=e.mensalidade;
+          prevSellersMapPptx[v].itens+=e.itens;prevSellersMapPptx[v].empresas+=1;
+        });
+        const prevSellersPptx=Object.values(prevSellersMapPptx).sort((a,b)=>(b.adesao+b.mensalidade)-(a.adesao+a.mensalidade));
+        const prevTotalPptx=prevSellersPptx.reduce((a,v)=>a+v.adesao+v.mensalidade,0)||1;
+        if(prevSellersPptx.length){
+          s=slideBg(DARK);
+          s.addText(`${prevMonthNamePptx.toUpperCase()} DE 2026`,{x:0.8,y:2.5,w:11.7,h:0.5,align:'center',fontSize:14,bold:true,color:'9FB4BD',charSpacing:2});
+          s.addText('QUANTITATIVO MENSAL\nPOR VENDEDOR',{x:0.8,y:3.0,w:11.7,h:1.4,align:'center',fontSize:26,bold:true,color:WHITE});
+          prevSellersPptx.forEach(v=>{
+            const valor=v.adesao+v.mensalidade;
+            const share=Math.round(valor/prevTotalPptx*100);
+            s=slideBg(WHITE);
+            s.addText(`QUANTITATIVO MENSAL — ${prevMonthNamePptx.toUpperCase()} DE 2026`,{x:0.6,y:0.4,w:12,h:0.4,fontSize:12,bold:true,color:'8A9BA5',charSpacing:1.5});
+            s.addText(v.vendedor,{x:0.6,y:0.78,w:12,h:0.6,fontSize:24,bold:true,color:INK});
+            s.addText(fmt.format(valor),{x:0.6,y:1.5,w:12,h:0.8,fontSize:30,bold:true,color:ACCENT});
+            s.addText(`${v.empresas} empresa${v.empresas===1?'':'s'} · ${v.itens} iten${v.itens===1?'':'s'} · ${share}% do total do mês na equipe`,{x:0.6,y:2.35,w:12,h:0.5,fontSize:13,bold:true,color:INK});
+          });
+        }
+      }
 
       const funilRowsPptx=[[{text:'Pipeline',options:{bold:true,fill:DARK,color:WHITE}},{text:'Etapa',options:{bold:true,fill:DARK,color:WHITE}},{text:'Conversão',options:{bold:true,fill:DARK,color:WHITE}}]];
       funilGroups.forEach(g=>g.stages.forEach(stg=>funilRowsPptx.push([g.grupo,`${stg.de} → ${stg.para}`,`${String(stg.pct).replace('.',',')}%`])));
