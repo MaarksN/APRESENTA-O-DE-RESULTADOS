@@ -550,6 +550,8 @@
   <div class="section-title"><h2>Meta x Vendido — 2026</h2><div class="rule"></div></div>
   <div id="meta-vendido"></div>
   </div>
+
+  <div id="pr-root"></div>
 </main>
 
 <div class="overlay" id="overlay">
@@ -1244,6 +1246,41 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') overlay.cl
   font-size:11.5px;color:var(--ink-secondary);line-height:1.5;box-shadow:var(--shadow);
 }
 .ci-trust-item b{display:block;font-size:12.5px;color:var(--dark);margin-bottom:3px;}
+
+/* Apresentação dos Resultados — páginas geradas a partir de DATA */
+.pr-cover{min-height:56vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:linear-gradient(135deg,var(--orange),var(--orange-3));border-radius:var(--radius);color:#fff;padding:40px 24px;}
+.pr-cover .pr-mark{width:56px;height:auto;margin-bottom:18px;}
+.pr-cover h2{font-size:26px;font-weight:800;margin:0;}
+.pr-cover p{font-size:13.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin:10px 0 0;opacity:.92;}
+.pr-hero{min-height:48vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 20px;}
+.pr-hero .pr-eyebrow{font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-muted);}
+.pr-hero .pr-value{font-size:52px;font-weight:800;margin-top:12px;line-height:1;color:var(--dark);}
+.pr-hero .pr-value.good{color:var(--good);}
+.pr-hero .pr-value.crit{color:var(--crit);}
+.pr-hero .pr-sub{font-size:13.5px;color:var(--ink-secondary);margin-top:12px;font-weight:600;}
+.pr-month-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:14px;}
+.pr-month-card{border:1px solid var(--border);border-radius:12px;padding:12px 13px;background:var(--surface);box-shadow:var(--shadow);}
+.pr-month-card .mc-name{font-size:11px;font-weight:800;color:var(--ink-muted);text-transform:uppercase;}
+.pr-month-card .mc-row{display:flex;justify-content:space-between;font-size:11px;margin-top:5px;color:var(--ink-secondary);}
+.pr-month-card .mc-row b{color:var(--ink);}
+.pr-month-card .mc-pct{font-size:13.5px;font-weight:800;margin-top:7px;text-align:right;}
+.pr-table-wrap{margin-top:14px;overflow-x:auto;}
+.pr-table-wrap table{width:100%;border-collapse:collapse;font-size:13px;}
+.pr-table-wrap th{text-align:left;background:var(--dark);color:#fff;padding:9px 11px;font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;}
+.pr-table-wrap td{padding:9px 11px;border-bottom:1px solid var(--border);}
+.pr-table-wrap tfoot td{font-weight:800;border-top:2px solid var(--dark);border-bottom:none;}
+.pr-divider{min-height:44vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 20px;}
+.pr-divider h2{font-size:24px;font-weight:800;color:var(--dark);margin:0;}
+.pr-divider p{font-size:13px;color:var(--ink-secondary);margin-top:8px;max-width:520px;}
+.pr-vendor-summary{font-size:14px;font-weight:700;color:var(--ink-secondary);margin:-4px 0 16px;}
+.pr-client-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;}
+.pr-client-list li{border:1px solid var(--border);border-radius:10px;padding:11px 13px;background:var(--surface);box-shadow:var(--shadow);font-size:13px;font-weight:700;color:var(--ink);}
+.pr-unavailable{border:1px dashed var(--border);border-radius:var(--radius);padding:34px 26px;text-align:center;background:var(--surface-alt);}
+.pr-unavailable .pr-icon{font-size:26px;display:block;margin-bottom:10px;}
+.pr-unavailable h3{font-size:15px;font-weight:800;color:var(--dark);margin:0 0 8px;}
+.pr-unavailable p{font-size:12.5px;color:var(--ink-secondary);max-width:520px;margin:0 auto;line-height:1.6;}
+.pr-closing{min-height:44vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.pr-closing .pr-mark{width:60px;height:auto;opacity:.9;}
 </style>
 
 <div class="pgv-page" id="pgv-7" data-pgv-label="Central de Inteligência Comercial">
@@ -1382,6 +1419,130 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') overlay.cl
 
 <footer>Gerado a partir de dados reais extraídos do Bitrix24 (webhook AUDITORIA_COMERCIAL_MENSAL_ATLASGR). Nenhum valor nesta página é estimado ou inventado.</footer>
 
+<script>
+(function(){
+  function brl(v){ if (v === null || v === undefined) return ''; var n = Number(v); return (n < 0 ? '-' : '') + 'R$ ' + Math.abs(n).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+  function pct(v){ return Number(v).toFixed(2).replace('.', ',') + '%'; }
+  var MARK = '<svg class="pr-mark" viewBox="0 0 260 175" xmlns="http://www.w3.org/2000/svg"><polygon fill="currentColor" points="153.4 87.56 167.65 62.87 167.68 62.85 178.13 44.72 178.11 44.68 178.15 44.68 203.95 0 182.97 0 152.31 0 110.4 0 99.17 0 73.37 44.68 73.35 44.72 62.87 62.87 48.62 87.56 48.41 87.94 0 171.76 83.81 171.76 104.78 171.76 125.74 135.49 125.76 135.44 153.19 87.94 153.4 87.56"/><polygon fill="currentColor" points="203.07 87.94 175.75 87.94 153.9 125.79 153.9 125.83 137.02 155.01 146.7 171.76 209.57 171.76 251.48 171.76 203.07 87.94"/></svg>';
+
+  var JUL = 6; // índice de julho (0 = Janeiro) em meta_vendido
+  var mv = DATA.meta_vendido;
+  var fin = (DATA.cards || []).find(function(c){ return c.id === 'fin_assinado'; });
+  var kpis = DATA.kpis;
+  var produtos = DATA.produtos_julho;
+  var leadsFunil = (DATA.funis || []).find(function(f){ return f.nome === 'PIPELINE LEADS'; });
+
+  var metaJul = mv.meta[JUL], valorJul = mv.valor_ajustado[JUL], saldoJul = mv.saldo[JUL], pctJul = mv.pct_meta[JUL];
+  var metaAcum = 0, realAcum = 0;
+  for (var i = 0; i <= JUL; i++) { metaAcum += mv.meta[i] || 0; realAcum += mv.valor_ajustado[i] || 0; }
+  var pctAcum = metaAcum ? (realAcum / metaAcum * 100) : 0;
+
+  var canalMap = {};
+  fin.items.forEach(function(it){ var k = it.origem || 'Não informado'; canalMap[k] = (canalMap[k] || 0) + it.valor; });
+  var canalRows = Object.keys(canalMap).map(function(k){ return [k, canalMap[k]]; }).sort(function(a,b){ return b[1]-a[1]; });
+
+  var porResponsavel = {};
+  fin.items.forEach(function(it){ (porResponsavel[it.responsavel] = porResponsavel[it.responsavel] || []).push(it.titulo || it.razao_social); });
+
+  function page(id, label, bodyHtml, cls){
+    return '<div class="pgv-page' + (cls ? ' ' + cls : '') + '" id="' + id + '" data-pgv-label="' + label + '">' + bodyHtml + '</div>';
+  }
+  function heading(t){ return '<div class="section-title"><h2>' + t + '</h2><div class="rule"></div></div>'; }
+  function unavailable(id, label, titulo, motivo){
+    return page(id, label, heading(titulo) +
+      '<div class="pr-unavailable"><span class="pr-icon">🛈</span><h3>Dado indisponível para julho/2026</h3><p>' + motivo + '</p></div>');
+  }
+
+  var pages = [];
+
+  pages.push(page('pgv-pr-1', 'Apresentação · Capa',
+    '<div class="pr-cover">' + MARK + '<h2>Apresentação dos Resultados</h2><p>Julho de 2026</p></div>'));
+
+  pages.push(page('pgv-pr-2', 'Resultado do Comercial',
+    '<div class="pr-hero"><div class="pr-eyebrow">Resultado de indicadores do comercial</div><div class="pr-value" style="font-size:34px;">JULHO DE 2026</div></div>'));
+
+  pages.push(page('pgv-pr-3', 'Meta Mensal de Julho',
+    heading('Meta mensal de julho') +
+    '<div class="pr-hero"><div class="pr-value">' + brl(metaJul) + '</div></div>'));
+
+  pages.push(page('pgv-pr-4', 'Valor do Mês de Julho',
+    heading('Valor do mês de julho (ajustado)') +
+    '<div class="pr-hero"><div class="pr-value">' + brl(valorJul) + '</div><div class="pr-sub">' + pct(pctJul) + ' da meta mensal</div></div>'));
+
+  pages.push(page('pgv-pr-5', 'Saldo da Meta Mensal',
+    heading('Saldo da meta mensal de julho') +
+    '<div class="pr-hero"><div class="pr-value ' + (saldoJul >= 0 ? 'good' : 'crit') + '">' + brl(saldoJul) + '</div></div>'));
+
+  var monthCards = mv.meses.slice(0, JUL + 1).map(function(mes, i){
+    return '<div class="pr-month-card"><div class="mc-name">' + mes.slice(0,3) + '</div>' +
+      '<div class="mc-row"><span>Meta</span><b>' + brl(mv.meta[i]) + '</b></div>' +
+      '<div class="mc-row"><span>Realiz.</span><b>' + brl(mv.valor_ajustado[i]) + '</b></div>' +
+      '<div class="mc-pct" style="color:' + (mv.pct_meta[i] >= 100 ? 'var(--good)' : 'var(--warn)') + ';">' + pct(mv.pct_meta[i]) + '</div></div>';
+  }).join('');
+  pages.push(page('pgv-pr-6', 'Meta × Realizado 2026',
+    heading('Meta × Realizado — Janeiro a Julho') + '<div class="pr-month-grid">' + monthCards + '</div>'));
+
+  pages.push(page('pgv-pr-7', 'Resultado Acumulado 2026',
+    heading('Resultado acumulado 2026 — Janeiro a Julho') +
+    '<div class="pr-hero"><div class="pr-value" style="font-size:38px;">' + brl(realAcum) + '</div>' +
+    '<div class="pr-sub">Meta acumulada: ' + brl(metaAcum) + ' · ' + pct(pctAcum) + ' da meta</div></div>'));
+
+  pages.push(unavailable('pgv-pr-8', 'Gap Vendido × Faturado', 'Gap vendido × faturado',
+    'Essa métrica compara o valor vendido (CRM) com o valor efetivamente faturado (financeiro/contabilidade) e depende de um sistema externo ao Bitrix24 e ao portal de gestão — não temos essa integração disponível para julho/2026.'));
+
+  var prodRows = produtos.por_vendedor.map(function(v){
+    return '<tr><td>' + v.vendedor + '</td><td>' + brl(v.profile) + '</td><td>' + brl(v.gr) + '</td><td>' + brl(v.analytics) + '</td><td>' + brl(v.torre) + '</td><td style="font-weight:700;">' + brl(v.total) + '</td></tr>';
+  }).join('');
+  pages.push(page('pgv-pr-9', 'Valor Vendido por Produto',
+    heading('Valor vendido por produto — Julho de 2026') +
+    '<p class="page-intro">' + produtos.cobertura + '</p>' +
+    '<div class="pr-table-wrap"><table><thead><tr><th>Vendedor</th><th>Profile</th><th>GR</th><th>Analytics</th><th>Torre</th><th>Total</th></tr></thead>' +
+    '<tbody>' + prodRows + '</tbody>' +
+    '<tfoot><tr><td>TOTAL</td><td>' + brl(produtos.total.profile) + '</td><td>' + brl(produtos.total.gr) + '</td><td>' + brl(produtos.total.analytics) + '</td><td>' + brl(produtos.total.torre) + '</td><td>' + brl(produtos.total.total) + '</td></tr></tfoot></table></div>'));
+
+  var canalRowsHtml = canalRows.map(function(r){ return '<tr><td>' + r[0] + '</td><td style="text-align:right;font-weight:700;">' + brl(r[1]) + '</td></tr>'; }).join('');
+  pages.push(page('pgv-pr-10', 'Desempenho dos Canais de Venda',
+    heading('Origem dos contratos assinados — Julho de 2026') +
+    '<div class="pr-table-wrap"><table><thead><tr><th>Canal / Origem</th><th style="text-align:right;">Total</th></tr></thead>' +
+    '<tbody>' + canalRowsHtml + '</tbody><tfoot><tr><td>TOTAL</td><td style="text-align:right;">' + brl(fin.valor) + '</td></tr></tfoot></table></div>'));
+
+  pages.push(page('pgv-pr-11', 'Clientes Fechados · Divisor',
+    '<div class="pr-divider"><h2>Clientes fechados por responsável</h2><p>Julho de 2026 · ' + fin.count + ' contratos assinados · ' + brl(fin.valor) + '</p></div>'));
+
+  fin.vendedores.forEach(function(v, idx){
+    var empresas = porResponsavel[v.vendedor] || [];
+    pages.push(page('pgv-pr-resp-' + idx, 'Responsável · ' + v.vendedor,
+      heading(v.vendedor) +
+      '<div class="pr-vendor-summary">' + v.count + ' cliente' + (v.count === 1 ? '' : 's') + ' · ' + brl(v.valor) + '</div>' +
+      '<ul class="pr-client-list">' + empresas.map(function(e){ return '<li>' + e + '</li>'; }).join('') + '</ul>'));
+  });
+
+  pages.push(page('pgv-pr-17', 'Vendedores e BDRs · Divisor',
+    '<div class="pr-divider"><h2>Vendedores e BDRs</h2><p>Funil de leads — Julho de 2026</p></div>'));
+
+  if (leadsFunil) {
+    var funilRows = leadsFunil.vendedores.map(function(v){
+      var et = {}; v.etapas.forEach(function(e){ et[e.etapa] = e.count; });
+      return '<tr><td>' + v.vendedor + '</td><td>' + (et['Leads Recebidos']||0) + '</td><td>' + (et['Reunião Agendada']||0) + '</td><td>' + (et['Convertido em Oportunidade']||0) + '</td></tr>';
+    }).join('');
+    pages.push(page('pgv-pr-18', 'Funil de Leads',
+      heading('Funil de leads — Vendedores e BDRs · Julho de 2026') +
+      '<div class="pr-table-wrap"><table><thead><tr><th>Vendedor</th><th>Recebidos</th><th>Reunião</th><th>Convertido</th></tr></thead>' +
+      '<tbody>' + funilRows + '</tbody></table></div>'));
+  }
+
+  pages.push(unavailable('pgv-pr-19', 'Indicadores Individuais dos BDRs', 'Indicadores individuais dos BDRs',
+    'O detalhamento por BDR (reuniões agendadas/realizadas, no-shows, negócios ganhos/perdidos) não está registrado no Bitrix24 nem no portal de gestão para julho/2026 — só existia no formato do relatório de junho.'));
+
+  pages.push(unavailable('pgv-pr-20', 'Leads Inbound e Orgânico', 'Leads Inbound e Orgânico — motivo de desqualificação',
+    'A quebra de leads Inbound/Orgânico com motivo de desqualificação não está disponível como relatório para julho/2026 no Bitrix24 nem no portal de gestão.'));
+
+  pages.push(page('pgv-pr-21', 'Apresentação · Encerramento',
+    '<div class="pr-closing">' + MARK + '</div>'));
+
+  document.getElementById('pr-root').innerHTML = pages.join('');
+})();
+</script>
 
 <script>
 (function(){
