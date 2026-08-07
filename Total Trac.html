@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Resultados 2026 Comercial Total Trac — Cards Mensais</title>
-<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root{--orange:#ff5618;--orange2:#ff7b32;--ink:#20242a;--muted:#68707c;--surface:#fff;--bg:#f5f3f1;--line:#e8e3df;--dark:#2d2d2d;--good:#178247;--warn:#a96f00;--crit:#bc3e2c;--blue:#2367a8;--radius:16px;--shadow:0 10px 28px rgba(28,31,35,.08)}
@@ -266,6 +265,13 @@ tbody tr:hover td{background:#F0FAFE}
 .pd-slide-list ul{list-style:none;margin:12px 0 0;padding:0;width:100%;text-align:left}
 .pd-slide-list li{font-size:13.5px;font-weight:600;padding:7px 2px;border-bottom:1px dashed var(--line)}
 .pd-slide-list li:last-child{border-bottom:none}
+.pd-slide-text{font-size:13.5px;line-height:1.6;margin-top:10px;text-align:left}
+.pd-slide-text p{margin:0 0 10px}
+.pd-slide-text p:last-child{margin-bottom:0}
+.pd-slide-text ol,.pd-slide-text ul{margin:0;padding-left:20px}
+.pd-slide-text li{margin-bottom:8px}
+.pd-slide-text li:last-child{margin-bottom:0}
+.pd-slide-text b{font-weight:800}
 .pd-deck-nav{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--tt-primary-deep);user-select:none;z-index:3}
 .pd-deck-nav.prev{left:-4px}.pd-deck-nav.next{right:-4px}
 .pd-deck-dots{display:flex;gap:6px;justify-content:center;margin-top:4px;flex-wrap:wrap}
@@ -367,6 +373,18 @@ main{padding-bottom:86px;}
 .ci-cta a{color:var(--tt-primary);font-weight:700;text-decoration:none;}
 .ci-cta a:hover{text-decoration:underline;}
 
+.ci-flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin:20px 0 26px;}
+.ci-flow-step{flex:1 1 150px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 14px 13px;box-shadow:var(--shadow);text-align:center;}
+.ci-flow-step .cf-icon{font-size:20px;display:block;margin-bottom:6px;}
+.ci-flow-step .cf-label{font-size:12px;font-weight:800;color:var(--tt-charcoal);}
+.ci-flow-step .cf-sub{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.35;}
+.ci-flow-arrow{display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--tt-accent);flex:0 0 auto;padding:0 2px;}
+@media (max-width:760px){.ci-flow{flex-direction:column;}.ci-flow-arrow{transform:rotate(90deg);padding:2px 0;}}
+
+.ci-trust{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0 6px;}
+.ci-trust-item{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px 15px;font-size:11.5px;color:var(--muted);line-height:1.5;box-shadow:var(--shadow);}
+.ci-trust-item b{display:block;font-size:12.5px;color:var(--tt-charcoal);margin-bottom:3px;}
+
 </style>
 </head>
 <body>
@@ -423,7 +441,6 @@ main{padding-bottom:86px;}
 <section class="section pd-wrap pgv-page" id="pgv-8" data-pgv-label="Apresentação dos Resultados">
   <div class="section-head"><h3>Apresentação dos Resultados de Julho</h3></div>
   <div class="pd-actions">
-    <button class="pd-btn" id="pd-btn-pptx"><span>⬇</span> Baixar apresentação (.pptx)</button>
     <button class="pd-btn secondary" id="pd-btn-xlsx"><span>⬇</span> Baixar planilha (.xlsx)</button>
   </div>
   <div id="pd-root"></div>
@@ -444,6 +461,18 @@ main{padding-bottom:86px;}
       ajudando a equipe a decidir a próxima ação, não só a olhar para trás.
     </p>
     <div class="ci-slogan">"Conectar para Cuidar" · Commercial OS — Revenue Intelligence</div>
+  </div>
+
+  <div class="ci-flow">
+    <div class="ci-flow-step"><span class="cf-icon">🎯</span><div class="cf-label">Prospecção com IA</div><div class="cf-sub">Enriquecimento automático de leads</div></div>
+    <div class="ci-flow-arrow">→</div>
+    <div class="ci-flow-step"><span class="cf-icon">🤖</span><div class="cf-label">Qualificação</div><div class="cf-sub">Agentes SDR/BDR apoiam a triagem</div></div>
+    <div class="ci-flow-arrow">→</div>
+    <div class="ci-flow-step"><span class="cf-icon">🗂️</span><div class="cf-label">Pipeline CRM</div><div class="cf-sub">Kanban único para as duas empresas</div></div>
+    <div class="ci-flow-arrow">→</div>
+    <div class="ci-flow-step"><span class="cf-icon">✅</span><div class="cf-label">Fechamento</div><div class="cf-sub">Playbook e Dojo de Vendas</div></div>
+    <div class="ci-flow-arrow">→</div>
+    <div class="ci-flow-step"><span class="cf-icon">📊</span><div class="cf-label">Relatórios automáticos</div><div class="cf-sub">Como este, mas ao vivo</div></div>
   </div>
 
   <h3 class="pd-subsection-title" style="margin-top:26px;">Por que isso importa para a operação comercial</h3>
@@ -522,6 +551,15 @@ main{padding-bottom:86px;}
         <li>Automações com gatilhos personalizáveis interligados aos Relatórios de IA.</li>
       </ul>
     </div>
+  </div>
+
+  <h3 class="pd-subsection-title" style="margin-top:26px;">Padrão de segurança e engenharia</h3>
+  <p class="page-intro">Não é um protótipo: a base da plataforma já passou por uma etapa de hardening enterprise antes de ganhar novos módulos.</p>
+  <div class="ci-trust">
+    <div class="ci-trust-item"><b>Multiempresa com permissões (RBAC)</b>Cada operação (Atlas GR, Total Trac) isolada por tenant, com matriz de permissões por papel.</div>
+    <div class="ci-trust-item"><b>Auditoria de tudo</b>Toda criação, edição e exclusão fica registrada (quem, o quê, quando) — histórico auditável do CRM.</div>
+    <div class="ci-trust-item"><b>Observabilidade</b>Métricas em Prometheus e rastreamento distribuído (OpenTelemetry) desde a base do sistema.</div>
+    <div class="ci-trust-item"><b>Esteira de qualidade</b>Testes automatizados e checagem de tipos bloqueiam o merge de código com problema antes de chegar em produção.</div>
   </div>
 
   <h3 class="pd-subsection-title" style="margin-top:26px;">O que isso vai ajudar</h3>
@@ -876,6 +914,17 @@ renderCompanies();renderForecast();renderDetail();
       <div class="pd-slide-heading">CRM — Julho</div>
       <div class="pd-slide-table"><table><thead><tr><th>Pipeline</th><th>Etapa</th><th>Conversão</th></tr></thead><tbody>${funilRows}</tbody><tfoot><tr><td colspan="2">Ponta a ponta (Lead → Contrato)</td><td>${pct(funilOverall)}</td></tr></tfoot></table></div>
     `});
+
+    // Prioridade para a equipe no próximo mês — a partir dos ajustes reais calculados para julho
+    if (jul.ajustes && jul.ajustes.length) {
+      slides.push({cls:'on-accent', html:`
+        <div class="pd-slide-eyebrow">Prioridade para a equipe no próximo mês</div>
+        <div class="pd-slide-text">
+          <p>Julho fechou em ${pct(jul.pct)} da meta (saldo de ${fmt.format(jul.saldo)}). Com base nesse resultado, a prioridade seria:</p>
+          <ol>${jul.ajustes.map(a => `<li>${esc(a)}</li>`).join('')}</ol>
+        </div>
+      `});
+    }
     slides.push({cls:'on-white center clickable', target:'pd-detail-pendentes', html:`
       <div class="pd-slide-eyebrow">1. Pendentes Assinatura</div>
       <div class="pd-slide-stat" style="font-size:32px;color:var(--warn);">${pend.count} empresas</div>
@@ -915,113 +964,6 @@ renderCompanies();renderForecast();renderDetail();
     deckEl.addEventListener('click',e=>{const el=e.target.closest('.pd-slide[data-target]');if(!el)return;const t=document.getElementById(el.dataset.target);if(!t)return;t.open=true;t.scrollIntoView({behavior:'smooth',block:'center'})});
   }
 
-  async function downloadPptx(){
-    const btn=document.getElementById('pd-btn-pptx'),orig=btn.innerHTML;btn.disabled=true;btn.innerHTML='Gerando…';
-    try{
-      const pd=buildPresentationData();if(!pd)throw new Error('dados indisponíveis');
-      const {jul,S,sellers,julyByVendor,topProdutos,prodTotal,pend,fore,confirmado,potencialCount,potencialValor,saldoAcum,funilGroups,funilOverall}=pd;
-      const ACCENT='008FCE',PRIMARY='374898',DARK='1E2F37',WHITE='FFFFFF',GOOD='178247',CRIT='BC3E2C',WARN='A96F00',INK='1E2F37';
-      const pres=new PptxGenJS();pres.layout='LAYOUT_WIDE';pres.theme={headFontFace:'Arial',bodyFontFace:'Arial'};
-      function slideBg(color){const s=pres.addSlide();s.background={color};return s}
-      function bigCenter(s,eyebrow,big,sub,color){
-        s.addText(eyebrow.toUpperCase(),{x:0.6,y:2.1,w:12.1,h:0.6,align:'center',fontSize:15,bold:true,color:color===WHITE?'D6F0FA':'607782',charSpacing:2});
-        s.addText(big,{x:0.6,y:2.7,w:12.1,h:1.6,align:'center',fontSize:38,bold:true,color});
-        if(sub)s.addText(sub,{x:0.6,y:4.3,w:12.1,h:0.6,align:'center',fontSize:14,bold:true,color:color===WHITE?'D6F0FA':'607782'});
-      }
-      function tableSlide(title,sub,rows,colW){
-        const s=slideBg(WHITE);
-        s.addText(title.toUpperCase(),{x:0.5,y:0.35,w:12.3,h:0.5,fontSize:13,bold:true,color:'8A9BA5',charSpacing:1.5});
-        s.addText(sub,{x:0.5,y:0.82,w:12.3,h:0.5,fontSize:20,bold:true,color:INK});
-        s.addTable(rows,{x:0.5,y:1.6,w:12.3,colW,fontSize:12,fontFace:'Arial',border:{type:'solid',color:'DCE7EF',pt:0.5},autoPage:false});
-        return s;
-      }
-      let s=slideBg(PRIMARY);
-      s.addText('TOTAL TRAC',{x:0.8,y:2.0,w:11.7,h:0.6,align:'center',fontSize:22,bold:true,color:WHITE});
-      s.addText('Apresentação dos Resultados',{x:0.8,y:2.6,w:11.7,h:1.0,align:'center',fontSize:32,bold:true,color:WHITE});
-      s.addText('JULHO DE 2026',{x:0.8,y:3.5,w:11.7,h:0.6,align:'center',fontSize:16,bold:true,color:'D6F0FA',charSpacing:3});
-
-      s=slideBg(PRIMARY);
-      s.addText('RESULTADO DE INDICADORES DO COMERCIAL',{x:0.8,y:2.9,w:11.7,h:0.8,align:'center',fontSize:22,bold:true,color:WHITE});
-      s.addText('JULHO DE 2026',{x:0.8,y:3.7,w:11.7,h:0.6,align:'center',fontSize:20,bold:true,color:WHITE});
-
-      s=slideBg(WHITE);bigCenter(s,'Meta mensal de julho',fmt.format(S.monthly_goal),'',ACCENT);
-      s=slideBg(PRIMARY);bigCenter(s,'Valor realizado de julho',fmt.format(S.july_realized),'Acompanhamento mensal Meta × Realizado',WHITE);
-      s=slideBg(WHITE);bigCenter(s,'Saldo da meta mensal de julho',fmt.format(jul.saldo),`${pct(jul.pct)} da meta atingida`,jul.saldo>=0?GOOD:CRIT);
-
-      const monthRowsPptx=[[{text:'Mês',options:{bold:true,fill:DARK,color:WHITE}},{text:'Meta',options:{bold:true,fill:DARK,color:WHITE}},{text:'Realizado',options:{bold:true,fill:DARK,color:WHITE}},{text:'% Meta',options:{bold:true,fill:DARK,color:WHITE}}]];
-      DATA.monthly.forEach(m=>monthRowsPptx.push([m.mes,fmt.format(m.meta),fmt.format(m.realizado),pct(m.pct)]));
-      tableSlide('Meta × Realizado — 2026','Janeiro a Julho',monthRowsPptx,[3,3.4,3.4,2.5]);
-
-      s=slideBg(PRIMARY);bigCenter(s,'Resultado acumulado 2026 — Jan a Jul',fmt.format(S.realized_ytd),`Meta: ${fmt.format(S.goal_ytd)} · ${pct(S.attainment_ytd)} da meta · Saldo: ${fmt.format(saldoAcum)}`,WHITE);
-
-      const sellerRowsPptx=[[{text:'Vendedor',options:{bold:true,fill:DARK,color:WHITE}},{text:'Empresas',options:{bold:true,fill:DARK,color:WHITE}},{text:'Itens',options:{bold:true,fill:DARK,color:WHITE}},{text:'Adesão',options:{bold:true,fill:DARK,color:WHITE}},{text:'Mensalidade',options:{bold:true,fill:DARK,color:WHITE}}]];
-      let stot={adesao:0,mensalidade:0,itens:0,empresas:0};
-      sellers.forEach(v=>{sellerRowsPptx.push([v.vendedor,String(v.empresas),String(v.itens),fmt.format(v.adesao),fmt.format(v.mensalidade)]);stot.adesao+=v.adesao;stot.mensalidade+=v.mensalidade;stot.itens+=v.itens;stot.empresas+=v.empresas});
-      sellerRowsPptx.push([{text:'TOTAL',options:{bold:true}},{text:String(stot.empresas),options:{bold:true}},{text:String(stot.itens),options:{bold:true}},{text:fmt.format(stot.adesao),options:{bold:true}},{text:fmt.format(stot.mensalidade),options:{bold:true}}]);
-      tableSlide('Vendido por vendedor','Julho de 2026',sellerRowsPptx,[3.5,2.2,2.1,2.3,2.2]);
-
-      if(topProdutos.length){
-        const prodRowsPptx=[[{text:'Produto',options:{bold:true,fill:DARK,color:WHITE}},{text:'Ocorr.',options:{bold:true,fill:DARK,color:WHITE}},{text:'Adesão',options:{bold:true,fill:DARK,color:WHITE}},{text:'Mensalidade',options:{bold:true,fill:DARK,color:WHITE}}]];
-        topProdutos.forEach(p=>prodRowsPptx.push([p.produto,String(p.ocorrencias),fmt.format(p.adesao),fmt.format(p.mensalidade)]));
-        prodRowsPptx.push([{text:'TOTAL',options:{bold:true}},{text:String(prodTotal.ocorrencias),options:{bold:true}},{text:fmt.format(prodTotal.adesao),options:{bold:true}},{text:fmt.format(prodTotal.mensalidade),options:{bold:true}}]);
-        tableSlide('Produtos mais vendidos',`Julho de 2026 — top ${topProdutos.length}`,prodRowsPptx,[6,2,2.15,2.15]);
-      }
-
-      s=slideBg(DARK);
-      s.addText('JULHO DE 2026',{x:0.8,y:2.5,w:11.7,h:0.5,align:'center',fontSize:14,bold:true,color:'9FB4BD',charSpacing:2});
-      s.addText('CLIENTES FECHADOS\nPOR VENDEDOR',{x:0.8,y:3.0,w:11.7,h:1.4,align:'center',fontSize:26,bold:true,color:WHITE});
-
-      sellers.forEach(v=>{
-        const empresas=julyByVendor[v.vendedor]||[];
-        s=slideBg(WHITE);
-        s.addText('VENDEDOR',{x:0.6,y:0.4,w:12,h:0.4,fontSize:12,bold:true,color:'8A9BA5',charSpacing:1.5});
-        s.addText(v.vendedor,{x:0.6,y:0.78,w:12,h:0.6,fontSize:24,bold:true,color:INK});
-        s.addText(`${empresas.length} cliente${empresas.length===1?'':'s'} · ${fmt.format(v.adesao+v.mensalidade)}`,{x:0.6,y:1.35,w:12,h:0.4,fontSize:13,bold:true,color:ACCENT});
-        s.addText(empresas.map(e=>({text:e,options:{bullet:true,breakLine:true}})),{x:0.6,y:1.95,w:12,h:4.8,fontSize:14,color:INK,paraSpaceAfter:6});
-      });
-
-      // Quantitativo mensal do vendedor no mês anterior — 1 slide por vendedor
-      {
-        const prevMonthNamePptx='Junho';
-        const prevSellersMapPptx={};
-        (DATA.month_groups[prevMonthNamePptx]||[]).forEach(e=>{
-          const v=e.vendedores[0]||'Não informado';
-          if(!prevSellersMapPptx[v])prevSellersMapPptx[v]={vendedor:v,adesao:0,mensalidade:0,itens:0,empresas:0};
-          prevSellersMapPptx[v].adesao+=e.adesao;prevSellersMapPptx[v].mensalidade+=e.mensalidade;
-          prevSellersMapPptx[v].itens+=e.itens;prevSellersMapPptx[v].empresas+=1;
-        });
-        const prevSellersPptx=Object.values(prevSellersMapPptx).sort((a,b)=>(b.adesao+b.mensalidade)-(a.adesao+a.mensalidade));
-        const prevTotalPptx=prevSellersPptx.reduce((a,v)=>a+v.adesao+v.mensalidade,0)||1;
-        if(prevSellersPptx.length){
-          s=slideBg(DARK);
-          s.addText(`${prevMonthNamePptx.toUpperCase()} DE 2026`,{x:0.8,y:2.5,w:11.7,h:0.5,align:'center',fontSize:14,bold:true,color:'9FB4BD',charSpacing:2});
-          s.addText('QUANTITATIVO MENSAL\nPOR VENDEDOR',{x:0.8,y:3.0,w:11.7,h:1.4,align:'center',fontSize:26,bold:true,color:WHITE});
-          prevSellersPptx.forEach(v=>{
-            const valor=v.adesao+v.mensalidade;
-            const share=Math.round(valor/prevTotalPptx*100);
-            s=slideBg(WHITE);
-            s.addText(`QUANTITATIVO MENSAL — ${prevMonthNamePptx.toUpperCase()} DE 2026`,{x:0.6,y:0.4,w:12,h:0.4,fontSize:12,bold:true,color:'8A9BA5',charSpacing:1.5});
-            s.addText(v.vendedor,{x:0.6,y:0.78,w:12,h:0.6,fontSize:24,bold:true,color:INK});
-            s.addText(fmt.format(valor),{x:0.6,y:1.5,w:12,h:0.8,fontSize:30,bold:true,color:ACCENT});
-            s.addText(`${v.empresas} empresa${v.empresas===1?'':'s'} · ${v.itens} iten${v.itens===1?'':'s'} · ${share}% do total do mês na equipe`,{x:0.6,y:2.35,w:12,h:0.5,fontSize:13,bold:true,color:INK});
-          });
-        }
-      }
-
-      const funilRowsPptx=[[{text:'Pipeline',options:{bold:true,fill:DARK,color:WHITE}},{text:'Etapa',options:{bold:true,fill:DARK,color:WHITE}},{text:'Conversão',options:{bold:true,fill:DARK,color:WHITE}}]];
-      funilGroups.forEach(g=>g.stages.forEach(stg=>funilRowsPptx.push([g.grupo,`${stg.de} → ${stg.para}`,`${String(stg.pct).replace('.',',')}%`])));
-      funilRowsPptx.push([{text:'Ponta a ponta',options:{bold:true}},{text:'Lead → Contrato Assinado',options:{bold:true}},{text:pct(funilOverall),options:{bold:true}}]);
-      tableSlide('Funil de conversão','CRM — Julho',funilRowsPptx,[3.5,6,2.8]);
-
-      s=slideBg(WHITE);bigCenter(s,'1. Pendentes Assinatura',`${pend.count} empresas`,fmt.format(pend.valor),WARN);
-      s=slideBg(PRIMARY);bigCenter(s,'2. Resultados 2026',`${fore.count} empresas`,fmt.format(fore.valor),WHITE);
-      s=slideBg(WHITE);bigCenter(s,'3. Potencial Geral',`${potencialCount} empresas`,`${fmt.format(potencialValor)} · Confirmado + Pendentes + Resultados 2026`,GOOD);
-
-      await pres.writeFile({fileName:'Apresentacao_Resultados2026_TotalTrac_Julho.pptx'});
-    }catch(err){alert('Não foi possível gerar a apresentação: '+err.message)}
-    finally{btn.disabled=false;btn.innerHTML=orig}
-  }
-
   function downloadXlsx(){
     const btn=document.getElementById('pd-btn-xlsx'),orig=btn.innerHTML;btn.disabled=true;btn.innerHTML='Gerando…';
     try{
@@ -1049,7 +991,6 @@ renderCompanies();renderForecast();renderDetail();
     finally{btn.disabled=false;btn.innerHTML=orig}
   }
 
-  document.getElementById('pd-btn-pptx').addEventListener('click',downloadPptx);
   document.getElementById('pd-btn-xlsx').addEventListener('click',downloadXlsx);
   renderPresentation();
 })();

@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   :root{
@@ -267,6 +266,35 @@
   .funnel-card:nth-child(2) .funnel-step-fill{background:linear-gradient(90deg,#2E5AAC,#4A7FD6);}
   .funnel-card:nth-child(3) .funnel-step-fill{background:linear-gradient(90deg,var(--good),#57C77E);}
 
+  /* Diagnóstico do funil — fatores de perda calculados a partir dos dados reais */
+  .diag-funil-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin:18px 0 26px;}
+  .diag-factor-card{
+    background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--crit);
+    border-radius:12px;padding:15px 16px;box-shadow:var(--shadow);
+  }
+  .diag-factor-card.warn{border-left-color:var(--warn);}
+  .diag-factor-card .df-count{font-size:26px;font-weight:800;color:var(--ink);}
+  .diag-factor-card .df-count small{font-size:13px;font-weight:700;color:var(--ink-muted);}
+  .diag-factor-card .df-label{font-size:12.5px;font-weight:700;color:var(--ink);margin-top:2px;}
+  .diag-factor-card .df-desc{font-size:11px;color:var(--ink-secondary);margin-top:5px;line-height:1.5;}
+  .diag-factor-card .df-bar{height:5px;border-radius:4px;background:var(--neutral-bg);margin-top:10px;overflow:hidden;}
+  .diag-factor-card .df-bar-fill{height:100%;border-radius:4px;background:var(--crit);}
+  .diag-factor-card.warn .df-bar-fill{background:var(--warn);}
+
+  .diag-vendors{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;box-shadow:var(--shadow);margin-bottom:8px;}
+  .diag-vendors .dv-title{font-size:12px;font-weight:800;color:var(--ink);margin-bottom:2px;}
+  .diag-vendors .dv-note{font-size:11.5px;color:var(--ink-secondary);margin-bottom:12px;}
+  .dv-row{display:grid;grid-template-columns:150px 1fr 70px;gap:12px;align-items:center;margin-bottom:9px;}
+  .dv-row:last-child{margin-bottom:0;}
+  .dv-row .dv-name{font-size:12.5px;font-weight:700;color:var(--ink);}
+  .dv-row .dv-track{height:14px;background:var(--neutral-bg);border-radius:7px;overflow:hidden;position:relative;}
+  .dv-row .dv-fill{height:100%;border-radius:7px;background:var(--crit);}
+  .dv-row.above .dv-fill{background:var(--good);}
+  .dv-row .dv-avg-line{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--dark);}
+  .dv-row .dv-pct{font-size:12.5px;font-weight:800;text-align:right;}
+  .dv-row.above .dv-pct{color:var(--good);}
+  .dv-row:not(.above) .dv-pct{color:var(--crit);}
+
   /* Drawer: card "Total Geral" + cards por vendedor */
   .drawer-summary{margin-bottom:22px;}
   .total-geral-card{
@@ -502,13 +530,20 @@
   <div class="funil-wrap" id="funil"></div>
   </div>
 
+  <div class="pgv-page" id="pgv-diag" data-pgv-label="Diagnóstico do Funil">
+  <div class="section-title"><h2>Diagnóstico do funil — o que está travando cada etapa</h2><div class="rule"></div></div>
+  <p class="page-intro">Cálculo feito em cima dos registros reais do Bitrix24 desta competência: cada fator abaixo é uma contagem de ocorrências reais (não estimativa), extraída diretamente dos negócios e leads do período.</p>
+  <div class="diag-funil-grid" id="diag-funil-grid"></div>
+  <div class="diag-vendors" id="diag-vendors"></div>
+  </div>
+
   <div class="pgv-page" id="pgv-3" data-pgv-label="Funil por Vendedor">
   <div class="section-title"><h2>Funil de cada etapa — visão geral e por vendedor</h2><div class="rule"></div></div>
   <div id="funis-detalhados"></div>
   </div>
 
-  <div class="pgv-page" id="pgv-4" data-pgv-label="Visão Geral por Item">
-  <div class="section-title"><h2>Visão geral por item — clique no card para ver todos os registros</h2><div class="rule"></div></div>
+  <div class="pgv-page" id="pgv-4" data-pgv-label="Visão Geral por Etapa do Funil">
+  <div class="section-title"><h2>Visão geral por etapa do funil</h2><div class="rule"></div></div>
   <div class="grid" id="grid"></div>
   </div>
 
@@ -726,6 +761,125 @@ funilEl.innerHTML = DATA.funil.map(f => `
     <div class="funil-bar"><div class="funil-bar-fill" style="width:${Math.min(100,f.pct)}%"></div></div>
   </div>
 `).join('');
+
+// ---- Diagnóstico do funil: agrega os diagnósticos reais (por registro) em fatores de perda ----
+// Agrega os diagnósticos reais (por registro) em fatores de perda do funil — usada pela
+// página "Diagnóstico do Funil" e reaproveitada na Apresentação dos Resultados.
+function computeFunilDiagnostico(){
+  const buckets = {
+    sem_contato: { count: 0, items: [] },
+    desqualificado: { count: 0, items: [] },
+    sem_proposta: { count: 0, items: [] },
+    proposta_lenta: { count: 0, items: [] },
+    perdido_apos_proposta: { count: 0, valor: 0 },
+    cnpj_ausente: { count: 0 },
+  };
+  const vendorRates = {}; // nome -> {taxa, media}
+
+  (DATA.cards || []).forEach(card => {
+    (card.items || []).forEach(it => {
+      (it.diagnostico || []).forEach(d => {
+        if (d.tipo !== 'negativo') return;
+        const t = d.texto;
+        if (t.includes('Sem reunião agendada')) buckets.sem_contato.count++;
+        else if (t.includes('Lead Desqualificado')) buckets.desqualificado.count++;
+        else if (t.includes('Ainda sem proposta formal')) buckets.sem_proposta.count++;
+        else if (t.includes('Proposta levou') && t.includes('acima da média')) buckets.proposta_lenta.count++;
+        else if (t.startsWith('Perdido') && t.includes('dias após a proposta')) { buckets.perdido_apos_proposta.count++; buckets.perdido_apos_proposta.valor += (it.valor || 0); }
+        else if (t.includes('Sem empresa/CNPJ') || t.includes('CNPJ não cadastrado')) buckets.cnpj_ausente.count++;
+        else {
+          const m = t.match(/^(.*?) tem taxa de aprovação de ([\d.,]+)% em propostas, abaixo da média da equipe \(([\d.,]+)%\)/);
+          if (m) vendorRates[m[1]] = { taxa: parseFloat(m[2]), media: parseFloat(m[3]) };
+        }
+      });
+    });
+  });
+
+  const totalLeads = (DATA.cards.find(c => c.id === 'leads') || {}).count || 0;
+  const negNovaOportunidade = (DATA.cards.find(c => c.id === 'avan_aberto') || {}).count || 0;
+  const negAprovado = (DATA.cards.find(c => c.id === 'avan_aprovado') || {}).count || 0;
+  const negPerdido = (DATA.cards.find(c => c.id === 'avan_perdido') || {}).count || 0;
+  const baseNegocios = negNovaOportunidade + negAprovado + negPerdido;
+
+  return { buckets, vendorRates, totalLeads, baseNegocios, negPerdido };
+}
+
+(function renderFunilDiagnostico(){
+  const gridEl = document.getElementById('diag-funil-grid');
+  const vendorsEl = document.getElementById('diag-vendors');
+  if (!gridEl || !vendorsEl) return;
+
+  const { buckets, vendorRates, totalLeads, baseNegocios, negPerdido } = computeFunilDiagnostico();
+  const pctOf = (n, base) => base ? Math.round(n / base * 100) : 0;
+
+  const factors = [
+    {
+      key: 'sem_contato', warn: false, count: buckets.sem_contato.count, base: totalLeads,
+      label: 'Leads sem nenhum contato qualificado',
+      desc: `${buckets.sem_contato.count} dos ${totalLeads} leads recebidos ainda não têm reunião agendada — é a maior fonte de perda no topo do funil.`,
+    },
+    {
+      key: 'desqualificado', warn: true, count: buckets.desqualificado.count, base: totalLeads,
+      label: 'Leads desqualificados pela equipe',
+      desc: `${buckets.desqualificado.count} leads foram marcados como desqualificados em julho, de um total de ${totalLeads} recebidos.`,
+    },
+    {
+      key: 'sem_proposta', warn: true, count: buckets.sem_proposta.count, base: baseNegocios,
+      label: 'Oportunidades sem proposta formal enviada',
+      desc: `${buckets.sem_proposta.count} negócios no Pipeline Negócios ainda não tiveram proposta formal enviada.`,
+    },
+    {
+      key: 'proposta_lenta', warn: true, count: buckets.proposta_lenta.count, base: baseNegocios,
+      label: 'Propostas enviadas com atraso',
+      desc: `${buckets.proposta_lenta.count} propostas levaram mais tempo que a média da equipe para serem enviadas ao cliente.`,
+    },
+    {
+      key: 'perdido_apos_proposta', warn: false, count: buckets.perdido_apos_proposta.count, base: negPerdido || buckets.perdido_apos_proposta.count,
+      label: 'Negócios perdidos após a proposta',
+      desc: `${buckets.perdido_apos_proposta.count} negócios foram perdidos depois da proposta enviada, somando ${brl(buckets.perdido_apos_proposta.valor)} em receita potencial.`,
+    },
+    {
+      key: 'cnpj_ausente', warn: true, count: buckets.cnpj_ausente.count, base: null,
+      label: 'Registros sem CNPJ/empresa associado no CRM',
+      desc: `${buckets.cnpj_ausente.count} registros (leads, reuniões e negócios) estão sem empresa ou CNPJ cadastrado no Bitrix24.`,
+    },
+  ];
+
+  gridEl.innerHTML = factors.filter(f => f.count > 0).map(f => {
+    const pct = f.base ? pctOf(f.count, f.base) : null;
+    return `
+      <div class="diag-factor-card${f.warn ? ' warn' : ''}">
+        <div class="df-count">${f.count}${pct !== null ? ` <small>(${pct}% de ${f.base})</small>` : ''}</div>
+        <div class="df-label">${f.label}</div>
+        <div class="df-desc">${f.desc}</div>
+        ${pct !== null ? `<div class="df-bar"><div class="df-bar-fill" style="width:${Math.min(100, pct)}%"></div></div>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  const vendorEntries = Object.entries(vendorRates);
+  if (vendorEntries.length) {
+    const media = vendorEntries[0][1].media;
+    const maxTaxa = Math.max(media, ...vendorEntries.map(([,v]) => v.taxa));
+    const rows = vendorEntries.sort((a,b) => a[1].taxa - b[1].taxa).map(([nome, v]) => `
+      <div class="dv-row">
+        <div class="dv-name">${nome}</div>
+        <div class="dv-track">
+          <div class="dv-fill" style="width:${maxTaxa ? (v.taxa / maxTaxa * 100) : 0}%"></div>
+          <div class="dv-avg-line" style="left:${maxTaxa ? (media / maxTaxa * 100) : 0}%"></div>
+        </div>
+        <div class="dv-pct">${v.taxa.toFixed(1).replace('.', ',')}%</div>
+      </div>
+    `).join('');
+    vendorsEl.innerHTML = `
+      <div class="dv-title">Taxa de aprovação de propostas por vendedor</div>
+      <div class="dv-note">Percentual de propostas enviadas que avançaram para "Aprovado Internamente". Linha escura marca a média da equipe (${media.toFixed(1).replace('.', ',')}%).</div>
+      ${rows}
+    `;
+  } else {
+    vendorsEl.style.display = 'none';
+  }
+})();
 
 // ---- Funis detalhados (visão geral + por vendedor), com barras ----
 const FUNIL_SHADES = ['var(--orange)', 'var(--orange-3)', 'var(--yellow)', 'var(--neutral)'];
@@ -1072,6 +1226,13 @@ details.kv-details table{margin-top:0 !important;}
 .slide-list-wrap ul{list-style:none;margin:12px 0 0;padding:0;width:100%;}
 .slide-list-wrap li{font-size:14.5px;font-weight:600;padding:8px 2px;border-bottom:1px dashed var(--border);}
 .slide-list-wrap li:last-child{border-bottom:none;}
+.slide-text{font-size:13.5px;line-height:1.6;margin-top:10px;text-align:left;}
+.slide-text p{margin:0 0 10px;}
+.slide-text p:last-child{margin-bottom:0;}
+.slide-text ol,.slide-text ul{margin:0;padding-left:20px;}
+.slide-text li{margin-bottom:8px;}
+.slide-text li:last-child{margin-bottom:0;}
+.slide-text b{font-weight:800;}
 .month-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-top:12px;width:100%;}
 .month-mini{border:1px solid var(--border);border-radius:10px;padding:9px 10px;}
 .month-mini .mm-name{font-size:10.5px;font-weight:800;color:var(--ink-muted);text-transform:uppercase;}
@@ -1148,12 +1309,29 @@ details.kv-details table{margin-top:0 !important;}
 }
 .ci-cta a{color:var(--orange-3);font-weight:700;text-decoration:none;}
 .ci-cta a:hover{text-decoration:underline;}
+
+.ci-flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin:20px 0 26px;}
+.ci-flow-step{
+  flex:1 1 150px;background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:14px 14px 13px;box-shadow:var(--shadow);text-align:center;
+}
+.ci-flow-step .cf-icon{font-size:20px;display:block;margin-bottom:6px;}
+.ci-flow-step .cf-label{font-size:12px;font-weight:800;color:var(--dark);}
+.ci-flow-step .cf-sub{font-size:10.5px;color:var(--ink-muted);margin-top:3px;line-height:1.35;}
+.ci-flow-arrow{display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--orange);flex:0 0 auto;padding:0 2px;}
+@media (max-width:760px){.ci-flow{flex-direction:column;}.ci-flow-arrow{transform:rotate(90deg);padding:2px 0;}}
+
+.ci-trust{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0 6px;}
+.ci-trust-item{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 15px;
+  font-size:11.5px;color:var(--ink-secondary);line-height:1.5;box-shadow:var(--shadow);
+}
+.ci-trust-item b{display:block;font-size:12.5px;color:var(--dark);margin-bottom:3px;}
 </style>
 
 <div class="updates-wrap pgv-page" id="pgv-6" data-pgv-label="Apresentação dos Resultados">
 <div class="section-title"><h2>Apresentação dos Resultados de Julho</h2><div class="rule"></div></div>
 <div class="deck-actions">
-  <button class="deck-action-btn" id="btn-download-pptx"><span class="dl-icon">⬇</span> Baixar apresentação (.pptx)</button>
   <button class="deck-action-btn secondary" id="btn-download-xlsx"><span class="dl-icon">⬇</span> Baixar planilha (.xlsx)</button>
 </div>
 <div id="forecast-atualizado"></div>
@@ -1174,6 +1352,18 @@ details.kv-details table{margin-top:0 !important;}
       ajudando a equipe a decidir a próxima ação, não só a olhar para trás.
     </p>
     <div class="ci-slogan">"Conectar para Cuidar" · Commercial OS — Revenue Intelligence</div>
+  </div>
+
+  <div class="ci-flow">
+    <div class="ci-flow-step"><span class="cf-icon">🎯</span><div class="cf-label">Prospecção com IA</div><div class="cf-sub">Enriquecimento automático de leads</div></div>
+    <div class="ci-flow-arrow">→</div>
+    <div class="ci-flow-step"><span class="cf-icon">🤖</span><div class="cf-label">Qualificação</div><div class="cf-sub">Agentes SDR/BDR apoiam a triagem</div></div>
+    <div class="ci-flow-arrow">→</div>
+    <div class="ci-flow-step"><span class="cf-icon">🗂️</span><div class="cf-label">Pipeline CRM</div><div class="cf-sub">Kanban único para as duas empresas</div></div>
+    <div class="ci-flow-arrow">→</div>
+    <div class="ci-flow-step"><span class="cf-icon">✅</span><div class="cf-label">Fechamento</div><div class="cf-sub">Playbook e Dojo de Vendas</div></div>
+    <div class="ci-flow-arrow">→</div>
+    <div class="ci-flow-step"><span class="cf-icon">📊</span><div class="cf-label">Relatórios automáticos</div><div class="cf-sub">Como este, mas ao vivo</div></div>
   </div>
 
   <h3 class="subsection-title">Por que isso importa para a operação comercial</h3>
@@ -1253,6 +1443,15 @@ details.kv-details table{margin-top:0 !important;}
         <li>Automações com gatilhos personalizáveis interligados aos Relatórios de IA.</li>
       </ul>
     </div>
+  </div>
+
+  <h3 class="subsection-title">Padrão de segurança e engenharia</h3>
+  <p class="page-intro">Não é um protótipo: a base da plataforma já passou por uma etapa de hardening enterprise antes de ganhar novos módulos.</p>
+  <div class="ci-trust">
+    <div class="ci-trust-item"><b>Multiempresa com permissões (RBAC)</b>Cada operação (Atlas GR, Total Trac) isolada por tenant, com matriz de permissões por papel.</div>
+    <div class="ci-trust-item"><b>Auditoria de tudo</b>Toda criação, edição e exclusão fica registrada (quem, o quê, quando) — histórico auditável do CRM.</div>
+    <div class="ci-trust-item"><b>Observabilidade</b>Métricas em Prometheus e rastreamento distribuído (OpenTelemetry) desde a base do sistema.</div>
+    <div class="ci-trust-item"><b>Esteira de qualidade</b>Testes automatizados e checagem de tipos bloqueiam o merge de código com problema antes de chegar em produção.</div>
   </div>
 
   <h3 class="subsection-title">O que isso vai ajudar</h3>
@@ -1483,6 +1682,63 @@ details.kv-details table{margin-top:0 !important;}
       `});
     }
 
+    // ---- Diagnóstico do funil dentro da apresentação: bloqueios + comparação por vendedor ----
+    {
+      const diag = computeFunilDiagnostico();
+      const { buckets, vendorRates, totalLeads } = diag;
+      const pctSemContato = totalLeads ? Math.round(buckets.sem_contato.count / totalLeads * 100) : 0;
+      const pctDesq = totalLeads ? Math.round(buckets.desqualificado.count / totalLeads * 100) : 0;
+
+      slides.push({cls:'on-dark center', html:`
+        <div class="slide-eyebrow">Julho de 2026</div>
+        <div class="slide-big">DIAGNÓSTICO<br>DO FUNIL</div>
+      `});
+
+      const diagRows = [
+        ['Leads sem contato qualificado', `${buckets.sem_contato.count} (${pctSemContato}% dos leads)`],
+        ['Leads desqualificados pela equipe', `${buckets.desqualificado.count} (${pctDesq}% dos leads)`],
+        ['Oportunidades sem proposta enviada', `${buckets.sem_proposta.count}`],
+        ['Propostas enviadas com atraso', `${buckets.proposta_lenta.count}`],
+        ['Negócios perdidos após a proposta', `${buckets.perdido_apos_proposta.count} · ${brl(buckets.perdido_apos_proposta.valor)}`],
+        ['Registros sem CNPJ no CRM', `${buckets.cnpj_ausente.count}`],
+      ].filter(r => !r[1].startsWith('0'));
+      slides.push({cls:'on-white', html:`
+        <div class="slide-eyebrow">Onde a operação está perdendo oportunidades</div>
+        <div class="slide-heading" style="font-size:18px;">Fatores de bloqueio — Julho</div>
+        <div class="slide-table-wrap"><table>
+          <thead><tr><th>Fator</th><th>Ocorrências</th></tr></thead>
+          <tbody>${diagRows.map(r => `<tr><td>${r[0]}</td><td style="font-weight:700;">${r[1]}</td></tr>`).join('')}</tbody>
+        </table></div>
+      `});
+
+      const vendorEntries = Object.entries(vendorRates).sort((a,b) => a[1].taxa - b[1].taxa);
+      if (vendorEntries.length) {
+        const [piorNome, piorDados] = vendorEntries[0];
+        const outros = vendorEntries.slice(1).map(([n,v]) => `${n} (${v.taxa.toFixed(1).replace('.',',')}%)`).join(' e ');
+        slides.push({cls:'on-white', html:`
+          <div class="slide-eyebrow">Comparação e ponto de atenção</div>
+          <div class="slide-heading" style="font-size:18px;">Taxa de aprovação de propostas por vendedor</div>
+          <div class="slide-text">
+            <p>${piorNome} apresenta a menor taxa de aprovação de propostas do time em julho: <b>${piorDados.taxa.toFixed(1).replace('.',',')}%</b>, bem abaixo da média da equipe (<b>${piorDados.media.toFixed(1).replace('.',',')}%</b>).${outros ? ` ${outros} também ficaram abaixo da média, mas mais perto dela.` : ''}</p>
+            <p>Isso indica espaço para revisar, com ${piorNome.split(' ')[0]}, os critérios de qualificação antes do envio da proposta — para elevar a taxa de aprovação sem reduzir o volume de propostas enviadas.</p>
+          </div>
+        `});
+      }
+
+      slides.push({cls:'on-orange', html:`
+        <div class="slide-eyebrow">Prioridade para a equipe no próximo mês</div>
+        <div class="slide-text">
+          <p>Com base nos números reais de julho, a prioridade seria:</p>
+          <ol>
+            ${buckets.sem_contato.count ? `<li>Retomar contato com os ${buckets.sem_contato.count} leads ainda sem reunião agendada (${pctSemContato}% da base recebida em julho), antes que esfriem.</li>` : ''}
+            ${buckets.sem_proposta.count ? `<li>Fechar o gap de proposta: ${buckets.sem_proposta.count} oportunidades no Pipeline Negócios seguem sem proposta formal enviada.</li>` : ''}
+            ${vendorEntries.length ? `<li>Apoiar ${vendorEntries[0][0]} na qualificação pré-proposta, hoje com ${vendorEntries[0][1].taxa.toFixed(1).replace('.',',')}% de aprovação contra ${vendorEntries[0][1].media.toFixed(1).replace('.',',')}% da equipe.</li>` : ''}
+            ${buckets.cnpj_ausente.count ? `<li>Padronizar o cadastro de CNPJ/empresa no CRM assim que o negócio avança de etapa — ${buckets.cnpj_ausente.count} registros seguem incompletos.</li>` : ''}
+          </ol>
+        </div>
+      `});
+    }
+
     // ---- Quantitativo mensal do vendedor no mês anterior — 1 vendedor por página ----
     if (mv.vendedores && mv.vendedores.length) {
       const PREV = JUL - 1; // índice do mês anterior à competência (Junho, quando a competência é Julho)
@@ -1636,170 +1892,6 @@ details.kv-details table{margin-top:0 !important;}
   }
 
   // ---------------------------------------------------------------------
-  // DOWNLOAD — Apresentação (.pptx) via PptxGenJS, mesmos dados do deck
-  // ---------------------------------------------------------------------
-  async function downloadPresentationPptx(){
-    const btn = document.getElementById('btn-download-pptx');
-    const original = btn.innerHTML;
-    btn.disabled = true; btn.innerHTML = 'Gerando…';
-    try {
-      const pd = buildPresentationData();
-      if (!pd) throw new Error('dados indisponíveis');
-      const { mv, funilLeads, pend, fore, fech, potencialCount, potencialValor,
-        JUL, metaJul, valorJul, saldoJul, pctJul, canalRows, porResponsavel, metaAcum, realizadoAcum, pctAcum } = pd;
-
-      const ORANGE = 'FF5618', DARK = '333333', WHITE = 'FFFFFF', GOOD = '1D8A45', CRIT = 'C4432E', WARN = 'B9860A', INK = '22262B';
-      const pres = new PptxGenJS();
-      pres.layout = 'LAYOUT_WIDE';
-      pres.theme = { headFontFace: 'Montserrat', bodyFontFace: 'Montserrat' };
-
-      function slideBg(color){ const s = pres.addSlide(); s.background = { color }; return s; }
-      function bigCenter(s, eyebrow, big, sub, color){
-        s.addText(eyebrow.toUpperCase(), { x: 0.6, y: 2.1, w: 12.1, h: 0.6, align: 'center', fontSize: 15, bold: true, color: color === WHITE ? 'FFE8DE' : '8A909A', charSpacing: 2 });
-        s.addText(big, { x: 0.6, y: 2.7, w: 12.1, h: 1.6, align: 'center', fontSize: 40, bold: true, color });
-        if (sub) s.addText(sub, { x: 0.6, y: 4.3, w: 12.1, h: 0.6, align: 'center', fontSize: 14, bold: true, color: color === WHITE ? 'FFE8DE' : '5B6169' });
-      }
-      function tableSlide(title, sub, rows, colWidths){
-        const s = slideBg(WHITE);
-        s.addText(title.toUpperCase(), { x: 0.5, y: 0.35, w: 12.3, h: 0.5, fontSize: 13, bold: true, color: '8A909A', charSpacing: 1.5 });
-        s.addText(sub, { x: 0.5, y: 0.82, w: 12.3, h: 0.5, fontSize: 20, bold: true, color: INK });
-        s.addTable(rows, { x: 0.5, y: 1.6, w: 12.3, colW: colWidths, fontSize: 12, fontFace: 'Montserrat', border: { type: 'solid', color: 'E7E3DF', pt: 0.5 }, autoPage: false });
-        return s;
-      }
-
-      // 1. Capa
-      let s = slideBg(ORANGE);
-      s.addText('Apresentação dos Resultados', { x: 0.8, y: 2.6, w: 11.7, h: 1.0, align: 'center', fontSize: 34, bold: true, color: WHITE });
-      s.addText('JULHO DE 2026', { x: 0.8, y: 3.5, w: 11.7, h: 0.6, align: 'center', fontSize: 16, bold: true, color: 'FFE8DE', charSpacing: 3 });
-
-      // 2. Título
-      s = slideBg(ORANGE);
-      s.addText('RESULTADO DE INDICADORES DO COMERCIAL', { x: 0.8, y: 2.9, w: 11.7, h: 0.8, align: 'center', fontSize: 24, bold: true, color: WHITE });
-      s.addText('JULHO DE 2026', { x: 0.8, y: 3.7, w: 11.7, h: 0.6, align: 'center', fontSize: 20, bold: true, color: WHITE });
-
-      // 3-5. Meta / Valor / Saldo
-      s = slideBg(WHITE); bigCenter(s, 'Meta mensal de julho', brl(metaJul), '', ORANGE);
-      s = slideBg(ORANGE); bigCenter(s, 'Valor do mês de julho (ajustado)', brl(valorJul), 'Acompanhamento mensal Meta × Vendido', WHITE);
-      s = slideBg(WHITE); bigCenter(s, 'Saldo da meta mensal de julho', brl(saldoJul), `${pctJul.toFixed(2).replace('.',',')}% da meta atingida`, saldoJul >= 0 ? GOOD : CRIT);
-
-      // 6. Meta x Realizado Jan-Jul
-      const monthRows = [[
-        { text: 'Mês', options: { bold: true, fill: DARK, color: WHITE } },
-        { text: 'Meta', options: { bold: true, fill: DARK, color: WHITE } },
-        { text: 'Realizado', options: { bold: true, fill: DARK, color: WHITE } },
-        { text: '% Meta', options: { bold: true, fill: DARK, color: WHITE } },
-      ]];
-      mv.meses.slice(0, JUL+1).forEach((mes,i) => {
-        monthRows.push([mes, brl(mv.meta[i]), brl(mv.valor_ajustado[i]), `${mv.pct_meta[i].toFixed(2).replace('.',',')}%`]);
-      });
-      tableSlide('Meta × Realizado — 2026', 'Janeiro a Julho', monthRows, [3, 3.4, 3.4, 2.5]);
-
-      // 7. Resultado acumulado
-      s = slideBg(ORANGE);
-      bigCenter(s, 'Resultado acumulado 2026 — Jan a Jul', brl(realizadoAcum), `Meta: ${brl(metaAcum)} · ${pctAcum.toFixed(2).replace('.',',')}% da meta · Saldo: ${brl(mv.saldo_2026)}`, WHITE);
-
-      // 8. Origem dos contratos
-      const canalRowsPptx = [[
-        { text: 'Canal / Origem', options: { bold: true, fill: DARK, color: WHITE } },
-        { text: 'Total', options: { bold: true, fill: DARK, color: WHITE } },
-      ]];
-      canalRows.forEach(([canal, val]) => canalRowsPptx.push([canal, brl(val)]));
-      canalRowsPptx.push([{ text: 'TOTAL', options: { bold: true } }, { text: brl(fech.valor), options: { bold: true } }]);
-      tableSlide('Origem dos contratos assinados', 'Julho de 2026', canalRowsPptx, [7, 5.3]);
-
-      // 9. Valor por produto (se disponível)
-      const prod = DATA.produtos_julho;
-      if (prod) {
-        const prodRowsPptx = [[
-          { text: 'Vendedor', options: { bold: true, fill: DARK, color: WHITE } },
-          { text: 'Profile', options: { bold: true, fill: DARK, color: WHITE } },
-          { text: 'GR', options: { bold: true, fill: DARK, color: WHITE } },
-          { text: 'Analytics', options: { bold: true, fill: DARK, color: WHITE } },
-          { text: 'Torre', options: { bold: true, fill: DARK, color: WHITE } },
-          { text: 'Total', options: { bold: true, fill: DARK, color: WHITE } },
-        ]];
-        prod.por_vendedor.forEach(v => prodRowsPptx.push([v.vendedor, brl(v.profile), brl(v.gr), brl(v.analytics), brl(v.torre), brl(v.total)]));
-        prodRowsPptx.push([
-          { text: 'TOTAL', options: { bold: true } }, { text: brl(prod.total.profile), options: { bold: true } },
-          { text: brl(prod.total.gr), options: { bold: true } }, { text: brl(prod.total.analytics), options: { bold: true } },
-          { text: brl(prod.total.torre), options: { bold: true } }, { text: brl(prod.total.total), options: { bold: true } },
-        ]);
-        tableSlide('Valor vendido por produto', prod.cobertura, prodRowsPptx, [2.6, 2, 2, 2, 1.7, 2]);
-      }
-
-      // 10. Divisor "Clientes fechados por responsável"
-      s = slideBg(DARK);
-      s.addText('JULHO DE 2026', { x: 0.8, y: 2.5, w: 11.7, h: 0.5, align: 'center', fontSize: 14, bold: true, color: 'C9CCD0', charSpacing: 2 });
-      s.addText('CLIENTES FECHADOS\nPOR RESPONSÁVEL', { x: 0.8, y: 3.0, w: 11.7, h: 1.4, align: 'center', fontSize: 28, bold: true, color: WHITE });
-
-      // 11+. Um slide por responsável
-      fech.vendedores.forEach(v => {
-        const empresas = porResponsavel[v.vendedor] || [];
-        s = slideBg(WHITE);
-        s.addText('RESPONSÁVEL', { x: 0.6, y: 0.4, w: 12, h: 0.4, fontSize: 12, bold: true, color: '8A909A', charSpacing: 1.5 });
-        s.addText(v.vendedor, { x: 0.6, y: 0.78, w: 12, h: 0.6, fontSize: 24, bold: true, color: INK });
-        s.addText(`${v.count} cliente${v.count===1?'':'s'} · ${brl(v.valor)}`, { x: 0.6, y: 1.35, w: 12, h: 0.4, fontSize: 13, bold: true, color: ORANGE });
-        s.addText(empresas.map(e => ({ text: e, options: { bullet: true, breakLine: true } })), { x: 0.6, y: 1.95, w: 12, h: 4.8, fontSize: 15, color: INK, paraSpaceAfter: 8 });
-      });
-
-      // Funil de leads por vendedor
-      if (funilLeads) {
-        const funilRowsPptx = [[
-          { text: 'Vendedor', options: { bold: true, fill: DARK, color: WHITE } },
-          { text: 'Recebidos', options: { bold: true, fill: DARK, color: WHITE } },
-          { text: 'Reunião', options: { bold: true, fill: DARK, color: WHITE } },
-          { text: 'Convertido', options: { bold: true, fill: DARK, color: WHITE } },
-        ]];
-        funilLeads.vendedores.forEach(v => {
-          const et = {}; v.etapas.forEach(e => et[e.etapa] = e.count);
-          funilRowsPptx.push([v.vendedor, String(et['Leads Recebidos']||0), String(et['Reunião Agendada']||0), String(et['Convertido em Oportunidade']||0)]);
-        });
-        tableSlide('Funil de Leads', 'Vendedores e BDRs — Julho', funilRowsPptx, [5, 2.5, 2.5, 2.3]);
-      }
-
-      // Quantitativo mensal do vendedor no mês anterior — 1 slide por vendedor
-      if (mv.vendedores && mv.vendedores.length) {
-        const PREV = JUL - 1;
-        const mesAnterior = mv.meses[PREV];
-        const totalMesAnterior = mv.vendedores.reduce((acc, v) => acc + (v.valores[PREV] || 0), 0);
-
-        s = slideBg(DARK);
-        s.addText(`${mesAnterior.toUpperCase()} DE 2026`, { x: 0.8, y: 2.5, w: 11.7, h: 0.5, align: 'center', fontSize: 14, bold: true, color: 'C9CCD0', charSpacing: 2 });
-        s.addText('QUANTITATIVO MENSAL\nPOR VENDEDOR', { x: 0.8, y: 3.0, w: 11.7, h: 1.4, align: 'center', fontSize: 28, bold: true, color: WHITE });
-
-        mv.vendedores.forEach(v => {
-          const valorAnterior = v.valores[PREV] || 0;
-          const valorRetrasado = PREV > 0 ? (v.valores[PREV - 1] || 0) : null;
-          const pctShare = totalMesAnterior ? Math.round(valorAnterior / totalMesAnterior * 100) : 0;
-          let sub = `Vendido em ${mesAnterior.toLowerCase()}/2026 · ${pctShare}% do total do mês na equipe`;
-          let subColor = GOOD;
-          if (valorRetrasado !== null && valorRetrasado > 0) {
-            const delta = Math.round((valorAnterior - valorRetrasado) / valorRetrasado * 100);
-            sub += ` · ${delta >= 0 ? '▲' : '▼'} ${Math.abs(delta)}% vs ${mv.meses[PREV - 1]}`;
-            subColor = delta >= 0 ? GOOD : CRIT;
-          }
-          s = slideBg(WHITE);
-          s.addText(`QUANTITATIVO MENSAL — ${mesAnterior.toUpperCase()} DE 2026`, { x: 0.6, y: 0.4, w: 12, h: 0.4, fontSize: 12, bold: true, color: '8A909A', charSpacing: 1.5 });
-          s.addText(v.vendedor, { x: 0.6, y: 0.78, w: 12, h: 0.6, fontSize: 24, bold: true, color: INK });
-          s.addText(brl(valorAnterior), { x: 0.6, y: 1.5, w: 12, h: 0.8, fontSize: 32, bold: true, color: ORANGE });
-          s.addText(sub, { x: 0.6, y: 2.35, w: 12, h: 0.5, fontSize: 13, bold: true, color: subColor });
-        });
-      }
-
-      // Fechamento: Pendentes / Pipeline em Aberto / Potencial
-      s = slideBg(WHITE); bigCenter(s, '1. Pendentes Assinatura', `${pend.count} empresas`, brl(pend.valor), WARN);
-      s = slideBg(ORANGE); bigCenter(s, '2. Pipeline em Aberto', `${fore.count} empresas`, brl(fore.valor), WHITE);
-      s = slideBg(WHITE); bigCenter(s, '3. Potencial Geral', `${potencialCount} empresas`, `${brl(potencialValor)} · Fechados + Pendentes + Pipeline em Aberto`, GOOD);
-
-      await pres.writeFile({ fileName: 'Apresentacao_Resultados_Julho_2026.pptx' });
-    } catch (err) {
-      alert('Não foi possível gerar a apresentação: ' + err.message);
-    } finally {
-      btn.disabled = false; btn.innerHTML = original;
-    }
-  }
-
-  // ---------------------------------------------------------------------
   // DOWNLOAD — Planilha (.xlsx) via SheetJS, mesmos dados do dashboard
   // ---------------------------------------------------------------------
   function downloadPlanilhaXlsx(){
@@ -1850,7 +1942,6 @@ details.kv-details table{margin-top:0 !important;}
     }
   }
 
-  document.getElementById('btn-download-pptx').addEventListener('click', downloadPresentationPptx);
   document.getElementById('btn-download-xlsx').addEventListener('click', downloadPlanilhaXlsx);
 
   renderForecastAtualizado();
