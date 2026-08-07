@@ -73,7 +73,7 @@
 
   .hero{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(255px,1fr));
     gap:14px;
     margin-bottom:30px;
   }
@@ -86,15 +86,20 @@
     position:relative;
     overflow:hidden;
     cursor:pointer;
+    display:flex;
+    flex-direction:column;
     transition:transform .12s ease, box-shadow .12s ease;
   }
   .hero-tile:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(34,38,43,0.10), 0 14px 30px rgba(34,38,43,0.12);}
-  .hero-tile .cta{font-size:11px;font-weight:700;color:var(--orange);margin-top:8px;}
+  .hero-tile .cta{font-size:11px;font-weight:700;color:var(--orange);margin-top:10px;}
   .hero-tile.highlight{border-color:var(--good);border-width:2px;}
   .hero-tile .label{font-size:12px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.5px;}
   .hero-tile .value{font-size:26px;font-weight:800;color:var(--ink);margin-top:6px;}
   .hero-tile.highlight .value{color:var(--good);}
   .hero-tile .sub{font-size:12.5px;color:var(--ink-secondary);margin-top:4px;}
+  .hero-tile .explica{font-size:11.5px;color:var(--ink-secondary);margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);line-height:1.5;}
+  .hero-tile .acao{font-size:11.5px;color:var(--ink);background:var(--surface-alt);border-left:3px solid var(--orange);border-radius:6px;padding:7px 9px;margin-top:8px;line-height:1.45;}
+  .hero-tile .acao b{color:var(--orange-3);text-transform:uppercase;font-size:9.5px;letter-spacing:.4px;display:block;margin-bottom:2px;}
 
   .section-title{
     display:flex;align-items:baseline;gap:10px;
@@ -233,6 +238,34 @@
   .funil-tile .fv{font-size:24px;font-weight:800;color:var(--ink);margin-top:4px;}
   .funil-bar{height:6px;border-radius:4px;background:var(--neutral-bg);margin-top:8px;overflow:hidden;}
   .funil-bar-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--orange-3));border-radius:4px;}
+
+  /* Texto de apoio no topo de cada página */
+  .page-intro{font-size:13px;color:var(--ink-secondary);max-width:820px;margin:-6px 0 20px;line-height:1.55;}
+
+  /* Dashboard visual do funil — barras decrescentes por pipeline, com dados reais */
+  .funnel-chart{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-bottom:26px;
+  }
+  .funnel-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:18px 20px 20px;box-shadow:var(--shadow);
+  }
+  .funnel-card .fc-head{font-size:11px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;}
+  .funnel-step{margin-bottom:12px;}
+  .funnel-step:last-child{margin-bottom:0;}
+  .funnel-step-row{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:5px;}
+  .funnel-step-row .fs-count{font-size:15px;font-weight:800;}
+  .funnel-step-row .fs-drop{font-size:10.5px;font-weight:700;color:var(--crit);}
+  .funnel-step-track{height:26px;background:var(--surface-alt);border-radius:7px;overflow:hidden;}
+  .funnel-step-fill{
+    height:100%;border-radius:7px;
+    background:linear-gradient(90deg,var(--orange),var(--orange-3));
+    display:flex;align-items:center;
+    transition:width .3s ease;
+    min-width:34px;
+  }
+  .funnel-card:nth-child(2) .funnel-step-fill{background:linear-gradient(90deg,#2E5AAC,#4A7FD6);}
+  .funnel-card:nth-child(3) .funnel-step-fill{background:linear-gradient(90deg,var(--good),#57C77E);}
 
   /* Drawer: card "Total Geral" + cards por vendedor */
   .drawer-summary{margin-bottom:22px;}
@@ -464,6 +497,8 @@
 
   <div class="pgv-page" id="pgv-2" data-pgv-label="Taxa de Conversão">
   <div class="section-title"><h2>Taxa de conversão por etapa do funil</h2><div class="rule"></div></div>
+  <p class="page-intro">Como ler este painel: cada funil abaixo mostra, com dados reais do Bitrix24, quantas empresas avançam (ou somem) de uma etapa para a próxima. A barra encolhe onde há mais perda — é ali que uma ação comercial tem mais impacto.</p>
+  <div class="funnel-chart" id="funnel-chart"></div>
   <div class="funil-wrap" id="funil"></div>
   </div>
 
@@ -482,8 +517,6 @@
   <div id="meta-vendido"></div>
   </div>
 </main>
-
-<footer>Gerado a partir de dados reais extraídos do Bitrix24 (webhook AUDITORIA_COMERCIAL_MENSAL_ATLASGR). Nenhum valor nesta página é estimado ou inventado.</footer>
 
 <div class="overlay" id="overlay">
   <div class="drawer">
@@ -511,16 +544,26 @@ document.getElementById('meta-pill').textContent = `Competência ${DATA.competen
 
 const heroEl = document.getElementById('hero');
 const heroTiles = [
-  {key:'vendas_confirmadas', label:'Vendas confirmadas', value: DATA.kpis.vendas_confirmadas_count, sub: DATA.kpis.vendas_confirmadas_valor_fmt + ' em receita confirmada', highlight:true},
-  {key:'pipeline_aberto', label:'Pipeline em aberto (forecast)', value: DATA.kpis.pipeline_aberto_count, sub: DATA.kpis.pipeline_aberto_valor_fmt + ' em potencial'},
-  {key:'taxa_conversao', label:'Taxa de conversão geral', value: DATA.kpis.taxa_conversao_geral, sub: 'lead → contrato assinado'},
-  {key:'cobertura_cnpj', label:'Cobertura de CNPJ no CRM', value: DATA.kpis.cnpj_cobertura, sub: 'clientes do Pipeline Financeiro com CNPJ cadastrado no Bitrix24'},
+  {key:'vendas_confirmadas', label:'Vendas confirmadas', value: DATA.kpis.vendas_confirmadas_count, sub: DATA.kpis.vendas_confirmadas_valor_fmt + ' em receita confirmada', highlight:true,
+    explica: 'Contratos assinados no Pipeline Financeiro em julho/2026 — a única etapa em que uma venda é contabilizada, evitando dupla contagem com "aprovado internamente".',
+    acao: 'Usar os 20 casos fechados como referência de playbook (abordagem, objeções e tempo de ciclo) para os vendedores com menor conversão.'},
+  {key:'pipeline_aberto', label:'Pipeline em aberto (potencial)', value: DATA.kpis.pipeline_aberto_count, sub: DATA.kpis.pipeline_aberto_valor_fmt + ' em potencial',
+    explica: 'Oportunidades que já entraram em algum funil comercial e ainda não foram fechadas nem perdidas — é a receita que pode ser confirmada nos próximos meses.',
+    acao: 'Priorizar follow-up das propostas mais antigas do Pipeline Negócios antes que esfriem e revisar as que estão paradas há mais tempo.'},
+  {key:'taxa_conversao', label:'Taxa de conversão geral', value: DATA.kpis.taxa_conversao_geral, sub: 'lead → contrato assinado',
+    explica: 'Percentual de leads recebidos que, ao final de todo o funil, viram contrato assinado — mede a eficiência ponta a ponta da operação comercial.',
+    acao: 'Ver a página "Taxa de Conversão" para identificar em qual etapa a perda é maior e concentrar esforço ali.'},
+  {key:'cobertura_cnpj', label:'Cobertura de CNPJ no CRM', value: DATA.kpis.cnpj_cobertura, sub: 'clientes do Pipeline Financeiro com CNPJ cadastrado no Bitrix24',
+    explica: 'Mostra quantos clientes com contrato assinado têm o CNPJ registrado no CRM — dado essencial para faturamento, compliance e cruzamento de informações.',
+    acao: 'Padronizar o preenchimento do CNPJ no Bitrix24 no momento da assinatura do contrato, antes de arquivar a oportunidade.'},
 ];
 heroEl.innerHTML = heroTiles.map(t => `
   <div class="hero-tile ${t.highlight?'highlight':''}" data-hero-key="${t.key}">
     <div class="label">${t.label}</div>
     <div class="value">${t.value}</div>
     <div class="sub">${t.sub}</div>
+    ${t.explica ? `<div class="explica">${t.explica}</div>` : ''}
+    ${t.acao ? `<div class="acao"><b>Ação recomendada</b>${t.acao}</div>` : ''}
     <div class="cta">Ver lista de julho/2026 →</div>
   </div>
 `).join('');
@@ -630,7 +673,7 @@ heroEl.addEventListener('click', (e) => {
     const b = findCard('fin_processo');
     const combo = {
       id: 'pipeline_aberto_combo',
-      titulo: 'Pipeline em Aberto (Forecast)',
+      titulo: 'Pipeline em Aberto (Potencial)',
       descricao: 'Soma de "Em Negociação" (Pipeline Negócios) + "Em Processo no Pipeline Financeiro" — oportunidades ainda não fechadas, visão do momento atual.',
       count: a.count + b.count,
       valor: a.valor + b.valor,
@@ -644,6 +687,34 @@ heroEl.addEventListener('click', (e) => {
     openCnpjCoverageDrawer();
   }
 });
+
+// ---- Dashboard visual do funil: barras decrescentes com contagem real por etapa ----
+const funnelChartEl = document.getElementById('funnel-chart');
+if (funnelChartEl && Array.isArray(DATA.funis)) {
+  funnelChartEl.innerHTML = DATA.funis.map(grupo => {
+    const base = grupo.overview[0] ? grupo.overview[0].count : 0;
+    const steps = grupo.overview.map((st, i) => {
+      const pct = base ? Math.max(6, Math.round(100 * st.count / base)) : 0;
+      const prev = i > 0 ? grupo.overview[i - 1].count : null;
+      const drop = prev ? Math.round(100 * (prev - st.count) / prev) : null;
+      return `
+        <div class="funnel-step">
+          <div class="funnel-step-row">
+            <span>${st.etapa}</span>
+            <span class="fs-count">${st.count}${drop !== null && drop > 0 ? ` <span class="fs-drop">−${drop}%</span>` : ''}</span>
+          </div>
+          <div class="funnel-step-track"><div class="funnel-step-fill" style="width:${pct}%"></div></div>
+        </div>
+      `;
+    }).join('');
+    return `
+      <div class="funnel-card">
+        <div class="fc-head">${grupo.nome}</div>
+        ${steps}
+      </div>
+    `;
+  }).join('');
+}
 
 // ---- Taxa de conversão (tiles) ----
 const funilEl = document.getElementById('funil');
@@ -1022,6 +1093,61 @@ details.kv-details table{margin-top:0 !important;}
 .deck-action-btn.secondary{background:var(--dark);}
 .deck-action-btn:disabled{opacity:.6;cursor:wait;transform:none;}
 .deck-action-btn .dl-icon{font-size:14px;}
+
+/* Página "Central de Inteligência Comercial" */
+.ci-hero{
+  background:linear-gradient(135deg,var(--dark) 0%,#1c1c1c 100%);
+  color:#fff;border-radius:var(--radius);padding:26px 28px;box-shadow:var(--shadow);
+  margin-bottom:24px;position:relative;overflow:hidden;
+}
+.ci-hero::after{
+  content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,86,24,.35),transparent 70%);
+}
+.ci-hero-tag{
+  display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.4px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#ffd7c2;
+  padding:5px 11px;border-radius:999px;margin-bottom:14px;font-family:monospace;
+}
+.ci-hero h3{margin:0 0 10px;font-size:19px;font-weight:800;color:#fff;position:relative;}
+.ci-hero p{margin:0;font-size:13.5px;line-height:1.65;color:#dcdde0;max-width:760px;position:relative;}
+.ci-hero p b{color:#fff;}
+.ci-hero .ci-slogan{margin-top:14px;font-size:12px;font-style:italic;color:#ffb28c;position:relative;}
+
+.ci-modules-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:16px 0 6px;
+}
+.ci-module-card{
+  background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--orange);
+  border-radius:12px;padding:15px 16px;box-shadow:var(--shadow);
+}
+.ci-module-card .ci-icon{font-size:20px;margin-bottom:6px;display:block;}
+.ci-module-card .ci-title{font-size:13px;font-weight:800;color:var(--dark);margin-bottom:4px;}
+.ci-module-card .ci-desc{font-size:11.5px;color:var(--ink-secondary);line-height:1.5;}
+
+.ci-roadmap{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:16px 0 6px;}
+.ci-roadmap-col{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);}
+.ci-roadmap-tag{display:inline-block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#fff;padding:4px 10px;border-radius:999px;margin-bottom:12px;}
+.ci-roadmap-col:nth-child(1) .ci-roadmap-tag{background:var(--orange);}
+.ci-roadmap-col:nth-child(2) .ci-roadmap-tag{background:#2E5AAC;}
+.ci-roadmap-col:nth-child(3) .ci-roadmap-tag{background:var(--dark);}
+.ci-roadmap-col ul{margin:0;padding-left:18px;font-size:12px;color:var(--ink-secondary);line-height:1.6;}
+.ci-roadmap-col li{margin-bottom:8px;}
+.ci-roadmap-col li:last-child{margin-bottom:0;}
+
+.ci-benefits{
+  background:var(--good-bg);border:1px solid #cdeadb;border-radius:12px;padding:18px 20px;margin:16px 0 6px;
+}
+.ci-benefits ul{margin:0;padding-left:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px 20px;}
+.ci-benefits li{font-size:12.5px;color:var(--ink);line-height:1.55;padding-left:22px;position:relative;}
+.ci-benefits li::before{content:"✓";position:absolute;left:0;top:0;color:var(--good);font-weight:800;}
+
+.ci-cta{
+  margin-top:22px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  font-size:12.5px;color:var(--ink-secondary);
+}
+.ci-cta a{color:var(--orange-3);font-weight:700;text-decoration:none;}
+.ci-cta a:hover{text-decoration:underline;}
 </style>
 
 <div class="updates-wrap pgv-page" id="pgv-6" data-pgv-label="Apresentação dos Resultados">
@@ -1032,6 +1158,121 @@ details.kv-details table{margin-top:0 !important;}
 </div>
 <div id="forecast-atualizado"></div>
 </div>
+
+<div class="pgv-page" id="pgv-7" data-pgv-label="Central de Inteligência Comercial">
+  <div class="section-title"><h2>Central de Inteligência Comercial — o próximo passo</h2><div class="rule"></div></div>
+
+  <div class="ci-hero">
+    <div class="ci-hero-tag">🚧 em desenvolvimento · github.com/MaarksN/CENTRAL-DE-INTELIGENCIA-COMECIAL-ATLASGR</div>
+    <h3>O CRM inteligente que estamos construindo para a Atlas GR e a Total Trac</h3>
+    <p>
+      Este relatório que você está vendo agora nasce de exportações manuais do Bitrix24 — alguém precisa puxar os
+      dados, cruzar planilhas e montar a apresentação todo mês. A <b>Central de Inteligência Comercial</b> (nome de
+      código do projeto: <b>Prospector-Atlas</b>) é a plataforma que estamos desenvolvendo para acabar com essa etapa
+      manual: um CRM com Inteligência Artificial embutida, que organiza toda a jornada comercial B2B — da prospecção
+      de novos leads até o contrato assinado — num único lugar, com números sempre atualizados e agentes de IA
+      ajudando a equipe a decidir a próxima ação, não só a olhar para trás.
+    </p>
+    <div class="ci-slogan">"Conectar para Cuidar" · Commercial OS — Revenue Intelligence</div>
+  </div>
+
+  <h3 class="subsection-title">Por que isso importa para a operação comercial</h3>
+  <p class="page-intro">
+    Hoje a inteligência comercial da Atlas GR e da Total Trac vive espalhada: parte no Bitrix24, parte em planilhas,
+    parte na cabeça de quem monta o relatório. Isso funciona, mas custa tempo todo mês e dificulta agir rápido sobre
+    o que os números mostram — como a queda de conversão entre etapas do funil ou os 2 de 30 clientes com CNPJ
+    pendente que aparecem nesta própria página. A Central de Inteligência Comercial existe para resolver isso na
+    raiz: um único sistema, para as duas empresas, que já nasce data-driven e com IA olhando os dados junto com o
+    time.
+  </p>
+
+  <h3 class="subsection-title">O que a plataforma vai fazer</h3>
+  <div class="ci-modules-grid">
+    <div class="ci-module-card">
+      <span class="ci-icon">🎯</span>
+      <div class="ci-title">Prospecção automática</div>
+      <div class="ci-desc">Busca e enriquece novos leads sozinha (Google Places, Apollo, Hunter, CNPJ e verificação de e-mail), com pontuação de empresas parecidas com os melhores clientes atuais.</div>
+    </div>
+    <div class="ci-module-card">
+      <span class="ci-icon">🗂️</span>
+      <div class="ci-title">Pipeline CRM em Kanban</div>
+      <div class="ci-desc">Funil comercial visual, com Decisores e Empresas centralizados — a mesma lógica de Pipeline Leads → Negócios → Financeiro usada neste relatório, mas ao vivo.</div>
+    </div>
+    <div class="ci-module-card">
+      <span class="ci-icon">🤖</span>
+      <div class="ci-title">Squad de agentes de IA</div>
+      <div class="ci-desc">Agentes especializados (SDR, BDR, Operações, Supervisor e Aprendizado) que apoiam a qualificação de leads, atualizam o CRM e sugerem a próxima ação de cada vendedor.</div>
+    </div>
+    <div class="ci-module-card">
+      <span class="ci-icon">🥋</span>
+      <div class="ci-title">Dojo de Vendas (Roleplay)</div>
+      <div class="ci-desc">Simulador de vendas por voz para treinar a equipe em objeções reais antes de ir para o cliente.</div>
+    </div>
+    <div class="ci-module-card">
+      <span class="ci-icon">📘</span>
+      <div class="ci-title">Playbook comercial</div>
+      <div class="ci-desc">Matrizes de qualificação e de objeções, padronizando a abordagem entre vendedores — para reduzir a diferença de conversão entre eles.</div>
+    </div>
+    <div class="ci-module-card">
+      <span class="ci-icon">⚙️</span>
+      <div class="ci-title">Automações</div>
+      <div class="ci-desc">Motor de automação com campanhas de cold call e gatilhos personalizados, ligado diretamente aos relatórios de IA.</div>
+    </div>
+    <div class="ci-module-card">
+      <span class="ci-icon">📊</span>
+      <div class="ci-title">Analytics &amp; Relatórios IA</div>
+      <div class="ci-desc">Dashboards e resumos automáticos do progresso comercial — o equivalente a este relatório sendo gerado sozinho, sempre atualizado.</div>
+    </div>
+    <div class="ci-module-card">
+      <span class="ci-icon">🏆</span>
+      <div class="ci-title">Gamificação do time</div>
+      <div class="ci-desc">Reconhecimento e engajamento da equipe de vendas dentro da própria ferramenta que ela já usa todo dia.</div>
+    </div>
+  </div>
+
+  <h3 class="subsection-title">Plano de ação — como o projeto vai evoluir</h3>
+  <div class="ci-roadmap">
+    <div class="ci-roadmap-col">
+      <span class="ci-roadmap-tag">Próximo ciclo</span>
+      <ul>
+        <li>Gráficos resumidos direto no Painel Central (Dashboard).</li>
+        <li>Filtros rápidos adicionais nas telas de Empresas e Decisores.</li>
+      </ul>
+    </div>
+    <div class="ci-roadmap-col">
+      <span class="ci-roadmap-tag">Médio prazo</span>
+      <ul>
+        <li>Templates com sugestões de IA no Editor de Documentos (propostas comerciais mais rápidas).</li>
+        <li>Visualização em Lista no Pipeline CRM, além do Kanban, para gestão em massa de leads.</li>
+      </ul>
+    </div>
+    <div class="ci-roadmap-col">
+      <span class="ci-roadmap-tag">Evolução estratégica</span>
+      <ul>
+        <li>Comunicação integrada: e-mail e WhatsApp corporativos direto de dentro do CRM.</li>
+        <li>Automações com gatilhos personalizáveis interligados aos Relatórios de IA.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="subsection-title">O que isso vai ajudar</h3>
+  <div class="ci-benefits">
+    <ul>
+      <li>Centraliza todas as etapas do processo comercial das duas empresas em um único lugar, em vez de planilhas e exports manuais.</li>
+      <li>Tira o trabalho manual de montar relatórios como este — os números ficam sempre atualizados, sozinhos.</li>
+      <li>Coloca IA para apoiar decisão no momento em que ela é tomada, não só depois, em uma reunião de resultado.</li>
+      <li>Padroniza a abordagem comercial (playbook, dojo de vendas) para reduzir a diferença de performance entre vendedores.</li>
+      <li>Acelera a prospecção com enriquecimento automático de dados, hoje feito manualmente.</li>
+      <li>Interface única para Atlas GR e Total Trac, com histórico e contexto de cada operação preservados.</li>
+    </ul>
+  </div>
+
+  <div class="ci-cta">
+    Projeto e código-fonte: <a href="https://github.com/MaarksN/CENTRAL-DE-INTELIGENCIA-COMECIAL-ATLASGR" target="_blank" rel="noopener">github.com/MaarksN/CENTRAL-DE-INTELIGENCIA-COMECIAL-ATLASGR</a>
+  </div>
+</div>
+
+<footer>Gerado a partir de dados reais extraídos do Bitrix24 (webhook AUDITORIA_COMERCIAL_MENSAL_ATLASGR). Nenhum valor nesta página é estimado ou inventado.</footer>
 
 <script>
 (function(){
@@ -1250,7 +1491,7 @@ details.kv-details table{margin-top:0 !important;}
     `});
 
     slides.push({cls:'on-orange center clickable', target:'detail-forecast', html:`
-      <div class="slide-eyebrow">2. Forecast</div>
+      <div class="slide-eyebrow">2. Pipeline em Aberto</div>
       <div class="slide-stat-value" style="font-size:34px;">${fore.count} empresas</div>
       <div class="slide-sub">${brl(fore.valor)}</div>
       <div class="slide-cta">Ver detalhamento completo ↓</div>
@@ -1259,7 +1500,7 @@ details.kv-details table{margin-top:0 !important;}
     slides.push({cls:'on-white center clickable', target:'detail-potencial', html:`
       <div class="slide-eyebrow">3. Potencial Geral</div>
       <div class="slide-stat-value" style="font-size:34px;color:var(--good);">${potencialCount} empresas</div>
-      <div class="slide-sub">${brl(potencialValor)} · Fechados + Pendentes + Forecast</div>
+      <div class="slide-sub">${brl(potencialValor)} · Fechados + Pendentes + Pipeline em Aberto</div>
       <div class="slide-cta" style="color:var(--orange);">Ver detalhamento completo ↓</div>
     `});
 
@@ -1296,7 +1537,7 @@ details.kv-details table{margin-top:0 !important;}
 
     const foreGroup = `
       <div class="fc-group">
-        <div class="fc-group-head"><h4>2. Forecast</h4><div class="fc-group-total">${fore.count} empresas · ${brl(fore.valor)}</div></div>
+        <div class="fc-group-head"><h4>2. Pipeline em Aberto</h4><div class="fc-group-total">${fore.count} empresas · ${brl(fore.valor)}</div></div>
         <p class="fc-note">Oportunidades em prospecção/negociação com expectativa de fechamento no período.</p>
         ${vendorCards(fore.vendedores, 'forecast')}
         <details class="kv-details" id="detail-forecast">
@@ -1309,7 +1550,7 @@ details.kv-details table{margin-top:0 !important;}
     const potGroup = `
       <div class="fc-group">
         <div class="fc-group-head"><h4>3. Potencial Geral</h4><div class="fc-group-total">${potencialCount} empresas · ${brl(potencialValor)}</div></div>
-        <p class="fc-note">Soma de Fechados em julho (${fech.count} · ${brl(fech.valor)}) + Pendentes Assinatura (${pend.count} · ${brl(pend.valor)}) + Forecast (${fore.count} · ${brl(fore.valor)}).</p>
+        <p class="fc-note">Soma de Fechados em julho (${fech.count} · ${brl(fech.valor)}) + Pendentes Assinatura (${pend.count} · ${brl(pend.valor)}) + Pipeline em Aberto (${fore.count} · ${brl(fore.valor)}).</p>
         ${vendorCards(fech.vendedores, 'sucesso')}
         <details class="kv-details" id="detail-potencial">
           <summary>Ver as ${fech.count} empresas já fechadas em julho</summary>
@@ -1486,10 +1727,10 @@ details.kv-details table{margin-top:0 !important;}
         tableSlide('Funil de Leads', 'Vendedores e BDRs — Julho', funilRowsPptx, [5, 2.5, 2.5, 2.3]);
       }
 
-      // Fechamento: Pendentes / Forecast / Potencial
+      // Fechamento: Pendentes / Pipeline em Aberto / Potencial
       s = slideBg(WHITE); bigCenter(s, '1. Pendentes Assinatura', `${pend.count} empresas`, brl(pend.valor), WARN);
-      s = slideBg(ORANGE); bigCenter(s, '2. Forecast', `${fore.count} empresas`, brl(fore.valor), WHITE);
-      s = slideBg(WHITE); bigCenter(s, '3. Potencial Geral', `${potencialCount} empresas`, `${brl(potencialValor)} · Fechados + Pendentes + Forecast`, GOOD);
+      s = slideBg(ORANGE); bigCenter(s, '2. Pipeline em Aberto', `${fore.count} empresas`, brl(fore.valor), WHITE);
+      s = slideBg(WHITE); bigCenter(s, '3. Potencial Geral', `${potencialCount} empresas`, `${brl(potencialValor)} · Fechados + Pendentes + Pipeline em Aberto`, GOOD);
 
       await pres.writeFile({ fileName: 'Apresentacao_Resultados_Julho_2026.pptx' });
     } catch (err) {
@@ -1527,7 +1768,7 @@ details.kv-details table{margin-top:0 !important;}
         pend.items.map(it => [it.empresa, it.responsavel, it.valor]),
         ['TOTAL', '', pend.valor]);
 
-      addSheet('Forecast', ['Empresa','Responsável','Origem','Valor'],
+      addSheet('Pipeline em Aberto', ['Empresa','Responsável','Origem','Valor'],
         fore.items.map(it => [it.empresa, it.responsavel, it.origem, it.valor]),
         ['TOTAL', '', '', fore.valor]);
 
