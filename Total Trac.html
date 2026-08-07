@@ -743,7 +743,6 @@ renderCompanies();renderForecast();renderDetail();
   var summary = DATA.summary;
   var rows = DATA.rows;
   var julySellers = DATA.july_sellers;
-  var actions = DATA.actions;
 
   var valorJul = monthly[JUL].realizado, valorJun = monthly[JUN].realizado;
   var deltaJunJul = valorJun ? ((valorJul - valorJun) / valorJun * 100) : null;
@@ -769,70 +768,79 @@ renderCompanies();renderForecast();renderDetail();
   });
   function uniq(arr){ return arr.filter(function(v,i){ return arr.indexOf(v) === i; }); }
 
-  var origemMap = {};
-  actions.forEach(function(a){ var k = a.origem || 'Não informada'; var o = origemMap[k] || (origemMap[k] = {count:0, valor:0}); o.count++; o.valor += a.valor; });
-  var origemRows = Object.keys(origemMap).map(function(k){ return [k, origemMap[k]]; }).sort(function(a,b){ return b[1].valor - a[1].valor; });
-  var origemTotal = origemRows.reduce(function(a,r){ return a + r[1].valor; }, 0);
-
-  function page(id, label, bodyHtml){
-    return '<section class="section pgv-page" id="' + id + '" data-pgv-label="' + label + '">' + bodyHtml + '</section>';
+  function el(id, label){
+    var d = document.createElement('section');
+    d.className = 'section pgv-page';
+    d.id = id;
+    d.setAttribute('data-pgv-label', label);
+    return d;
   }
+  function setBody(node, html){ node.innerHTML = html; return node; }
   function heading(t){ return '<div class="section-head"><h3>' + t + '</h3></div>'; }
-  function unavailable(id, label, titulo, motivo){
-    return page(id, label, heading(titulo) +
-      '<div class="pr-unavailable"><span class="pr-icon">🛈</span><h3>Dado indisponível para julho/2026</h3><p>' + motivo + '</p></div>');
+  function subheading(t){ return '<div class="section-head" style="margin-top:26px;"><h3>' + t + '</h3></div>'; }
+  function unavailableBody(titulo, motivo){
+    return heading(titulo) + '<div class="pr-unavailable"><span class="pr-icon">🛈</span><h3>Dado indisponível para julho/2026</h3><p>' + motivo + '</p></div>';
   }
   function kpiStrip(items){
     return '<div class="pr-kpi-strip">' + items.map(function(it){
       return '<div class="pr-kpi"><div class="pr-kpi-label">' + it[0] + '</div><div class="pr-kpi-value">' + it[1] + '</div></div>';
     }).join('') + '</div>';
   }
-  function bar(pctVal){
-    var w = Math.max(0, Math.min(100, pctVal));
-    var color = pctVal >= 100 ? 'var(--good)' : (pctVal >= 60 ? 'var(--warn)' : 'var(--crit)');
-    return '<div class="pr-bar-track"><div class="pr-bar-fill" style="width:' + w + '%;background:' + color + ';"></div></div>';
-  }
+
+  // ---- captura o conteúdo já renderizado pelo dashboard original, para reaproveitar na apresentação ----
+  var oldPgv1 = document.getElementById('pgv-1');
+  var oldPgv2 = document.getElementById('pgv-2');
+  var oldPgv3 = document.getElementById('pgv-3');
+  var oldPgv4 = document.getElementById('pgv-4');
+  var oldPgv5 = document.getElementById('pgv-5');
+  var oldPgv6 = document.getElementById('pgv-6');
+  var oldPgv7 = document.getElementById('pgv-7');
+
+  var kpisNode = document.getElementById('kpis');
+  var monthlyCardsNode = document.getElementById('monthly-cards');
+  var qualityNoteNode = document.getElementById('quality-note');
+  var companyCardsSection = oldPgv4 ? oldPgv4.querySelector('.card') : null; // busca + grid de empresas/produtos
 
   var pages = [];
 
-  pages.push(page('pgv-pr-1', 'Apresentação · Capa',
+  // 1 — Capa
+  pages.push(setBody(el('pgv-pr-1', 'Apresentação · Capa'),
     '<div class="pr-cover">' + WORDMARK + '<h2>Apresentação dos Resultados</h2><p>Julho de 2026</p></div>'));
 
-  pages.push(page('pgv-pr-2', 'Resultado do Comercial',
-    '<div class="pr-hero"><div class="pr-eyebrow">Resultado de indicadores do comercial</div><div class="pr-value" style="font-size:34px;">JULHO DE 2026</div></div>' +
-    kpiStrip([
-      ['Empresas atendidas (ano)', summary.unique_clients],
-      ['Itens vendidos (ano)', summary.items],
-      ['Empresas em julho', summary.july_clients],
-      ['Atingimento de julho', pct2(summary.july_attainment)]
-    ])));
+  // 2 — Resultado do Comercial (reaproveita #kpis, já renderizado pelo dashboard)
+  var p2 = el('pgv-pr-2', 'Resultado do Comercial');
+  setBody(p2, heading('Resultado de indicadores do comercial') +
+    '<p class="page-intro">Consolidado de janeiro a julho, com resultados 2026 separados da receita realizada.</p>');
+  if (kpisNode) p2.appendChild(kpisNode);
+  pages.push(p2);
 
-  pages.push(page('pgv-pr-3', 'Meta Mensal de Julho',
+  // 3 — Meta Mensal de Julho
+  pages.push(setBody(el('pgv-pr-3', 'Meta Mensal de Julho'),
     heading('Meta mensal de julho') +
     '<div class="pr-hero"><div class="pr-value">' + brl(monthly[JUL].meta) + '</div>' +
     '<div class="pr-sub">Meta anual 2026: ' + brl(summary.annual_goal) + '</div></div>'));
 
-  pages.push(page('pgv-pr-4', 'Valor Realizado de Julho',
+  // 4 — Valor Realizado de Julho
+  pages.push(setBody(el('pgv-pr-4', 'Valor Realizado de Julho'),
     heading('Valor realizado de julho') +
     '<div class="pr-hero"><div class="pr-value">' + brl(valorJul) + '</div>' +
     '<div class="pr-sub">' + pct2(monthly[JUL].pct) + ' da meta mensal' + (deltaJunJul !== null ? ' · ' + (deltaJunJul >= 0 ? '+' : '') + pct2(deltaJunJul) + ' vs. junho' : '') + '</div></div>'));
 
-  pages.push(page('pgv-pr-5', 'Saldo da Meta Mensal',
+  // 5 — Saldo da Meta Mensal
+  pages.push(setBody(el('pgv-pr-5', 'Saldo da Meta Mensal'),
     heading('Saldo da meta mensal de julho') +
     '<div class="pr-hero"><div class="pr-value ' + (monthly[JUL].saldo >= 0 ? 'good' : 'crit') + '">' + brl(monthly[JUL].saldo) + '</div>' +
     '<div class="pr-sub">' + (monthly[JUL].saldo >= 0 ? 'Meta superada em ' + pct2(monthly[JUL].pct - 100) : 'Faltam ' + pct2(100 - monthly[JUL].pct) + ' para bater a meta') + '</div></div>'));
 
-  var monthCards = monthly.slice(0, JUL + 1).map(function(m){
-    return '<div class="pr-month-card"><div class="mc-name">' + m.mes.slice(0,3) + '</div>' +
-      '<div class="mc-row"><span>Meta</span><b>' + brl(m.meta) + '</b></div>' +
-      '<div class="mc-row"><span>Realiz.</span><b>' + brl(m.realizado) + '</b></div>' +
-      bar(m.pct) +
-      '<div class="mc-pct" style="color:' + (m.pct >= 100 ? 'var(--good)' : 'var(--warn)') + ';">' + pct2(m.pct) + '</div></div>';
-  }).join('');
-  pages.push(page('pgv-pr-6', 'Meta × Realizado 2026',
-    heading('Meta × Realizado — Janeiro a Julho') + '<div class="pr-month-grid">' + monthCards + '</div>'));
+  // 6 — Meta × Realizado 2026 (reaproveita #monthly-cards: cards reais com pontos de ajuste por mês)
+  var p6 = el('pgv-pr-6', 'Meta × Realizado 2026');
+  setBody(p6, heading('Meta × Realizado — Janeiro a Julho'));
+  if (monthlyCardsNode) p6.appendChild(monthlyCardsNode);
+  if (qualityNoteNode) p6.appendChild(qualityNoteNode);
+  pages.push(p6);
 
-  pages.push(page('pgv-pr-7', 'Resultado Acumulado 2026',
+  // 7 — Resultado Acumulado 2026
+  pages.push(setBody(el('pgv-pr-7', 'Resultado Acumulado 2026'),
     heading('Resultado acumulado 2026 — Janeiro a Julho') +
     '<div class="pr-hero"><div class="pr-value" style="font-size:38px;">' + brl(summary.realized_ytd) + '</div>' +
     '<div class="pr-sub">Meta acumulada: ' + brl(summary.goal_ytd) + ' · ' + pct2(summary.attainment_ytd) + ' da meta</div></div>' +
@@ -843,70 +851,74 @@ renderCompanies();renderForecast();renderDetail();
       ['Ritmo necessário ago–dez', brl(summary.required_pace_aug_dec) + '/mês']
     ])));
 
-  pages.push(page('pgv-pr-8', 'Ritmo Necessário Ago-Dez',
-    heading('Ritmo necessário para bater a meta anual') +
-    '<div class="pr-hero"><div class="pr-value" style="font-size:38px;">' + brl(summary.required_pace_aug_dec) + '</div>' +
-    '<div class="pr-sub">por mês, de agosto a dezembro · saldo anual atual: ' + brl(summary.gap_ytd) + '</div></div>'));
+  // 8 — Gap Vendido × Faturado
+  pages.push(setBody(el('pgv-pr-8', 'Gap Vendido × Faturado'),
+    unavailableBody('Gap vendido × faturado',
+      'Essa métrica compara o valor vendido (CRM) com o valor efetivamente faturado (financeiro/contabilidade) e depende de um sistema externo ao portal de gestão — não temos essa integração disponível para julho/2026.')));
 
-  pages.push(unavailable('pgv-pr-9', 'Gap Vendido × Faturado', 'Gap vendido × faturado',
-    'Essa métrica compara o valor vendido (CRM) com o valor efetivamente faturado (financeiro/contabilidade) e depende de um sistema externo ao portal de gestão — não temos essa integração disponível para julho/2026.'));
-
+  // 9 — Produtos Mais Vendidos (tabela agregada + reaproveita #company-cards, busca real de empresas/produtos)
   var prodRowsHtml = prodRowsArr.map(function(r){
     var share = prodTotalGeral ? ((r[1].adesao + r[1].mensalidade) / prodTotalGeral * 100) : 0;
     return '<tr><td>' + r[0] + '</td><td>' + r[1].oc + '</td><td>' + brl(r[1].adesao) + '</td><td>' + brl(r[1].mensalidade) + '</td><td style="font-weight:700;">' + brl(r[1].adesao + r[1].mensalidade) + '</td><td style="text-align:right;">' + pct2(share) + '</td></tr>';
   }).join('');
-  pages.push(page('pgv-pr-10', 'Produtos Mais Vendidos',
-    heading('Produtos mais vendidos — Julho de 2026') +
+  var p9 = el('pgv-pr-9', 'Produtos Mais Vendidos');
+  setBody(p9, heading('Produtos mais vendidos — Julho de 2026') +
     '<div class="pr-table-wrap"><table><thead><tr><th>Produto</th><th>Itens</th><th>Adesão</th><th>Mensalidade</th><th>Total</th><th style="text-align:right;">% do total</th></tr></thead>' +
-    '<tbody>' + prodRowsHtml + '</tbody></table></div>'));
+    '<tbody>' + prodRowsHtml + '</tbody></table></div>' +
+    subheading('Buscar por empresa, produto ou vendedor'));
+  if (companyCardsSection) p9.appendChild(companyCardsSection);
+  pages.push(p9);
 
-  var origemRowsHtml = origemRows.map(function(r){
-    var share = origemTotal ? (r[1].valor / origemTotal * 100) : 0;
-    return '<tr><td>' + r[0] + '</td><td>' + r[1].count + '</td><td style="text-align:right;font-weight:700;">' + brl(r[1].valor) + '</td><td style="text-align:right;">' + pct2(share) + '</td></tr>';
-  }).join('');
-  pages.push(page('pgv-pr-11', 'Origem do Pipeline em Aberto',
-    heading('Origem do pipeline em aberto — pendentes e forecast') +
-    '<p class="page-intro">Esses são negócios ainda não fechados (pendentes de assinatura ou em forecast); a origem de vendas já fechadas em julho/2026 não é registrada na planilha atual.</p>' +
-    '<div class="pr-table-wrap"><table><thead><tr><th>Origem</th><th>Negócios</th><th style="text-align:right;">Valor</th><th style="text-align:right;">% do total</th></tr></thead>' +
-    '<tbody>' + origemRowsHtml + '</tbody><tfoot><tr><td>TOTAL</td><td>' + actions.length + '</td><td style="text-align:right;">' + brl(origemTotal) + '</td><td style="text-align:right;">100%</td></tr></tfoot></table></div>'));
+  // 10 — Desempenho dos Canais de Venda
+  pages.push(setBody(el('pgv-pr-10', 'Desempenho dos Canais de Venda'),
+    unavailableBody('Desempenho dos canais de venda',
+      'A origem/canal não é registrada nas vendas fechadas de julho/2026 na planilha atual — só aparece (como "Não informada") nos itens ainda pendentes de assinatura, o que não é uma base confiável para esta página.')));
 
-  pages.push(page('pgv-pr-12', 'Vendas por Vendedor · Divisor',
+  // 11 — Divisor: Vendas por Vendedor
+  pages.push(setBody(el('pgv-pr-11', 'Vendas por Vendedor · Divisor'),
     '<div class="pr-divider"><h2>Vendas por vendedor</h2><p>Julho de 2026 · ' + summary.july_clients + ' empresas · ' + brl(valorJul) + '</p></div>'));
 
+  // 12–15 — páginas de vendedor
   julySellers.forEach(function(v, idx){
     var empresas = uniq(empresasPorVendedor[v.vendedor] || []);
     var itensHtml = empresas.map(function(e){
       var val = produtoPorCliente[v.vendedor + '::' + e];
       return '<li><span>' + e + '</span>' + (val !== undefined ? '<b>' + brl(val) + '</b>' : '') + '</li>';
     }).join('');
-    pages.push(page('pgv-pr-vend-' + idx, 'Vendedor · ' + v.vendedor,
+    pages.push(setBody(el('pgv-pr-vend-' + idx, 'Vendedor · ' + v.vendedor),
       heading(v.vendedor) +
       '<div class="pr-vendor-summary">' + v.empresas + ' empresa' + (v.empresas === 1 ? '' : 's') + ' · ' + v.itens + ' itens · ' + brl(v.adesao + v.mensalidade) + '</div>' +
       '<ul class="pr-client-list">' + itensHtml + '</ul>'));
   });
 
-  pages.push(unavailable('pgv-pr-17', 'Funil de Leads', 'Funil de leads',
-    'O funil de leads do CRM desta empresa apresentou inconsistência nos dados de julho/2026 (números idênticos aos de outra operação) — preferimos não exibir um número não confiável nesta apresentação.'));
+  // 16 — Divisor: Vendedores e BDRs
+  pages.push(setBody(el('pgv-pr-16', 'Vendedores e BDRs · Divisor'),
+    '<div class="pr-divider"><h2>Vendedores e BDRs</h2><p>Funil de leads — Julho de 2026</p></div>'));
 
-  pages.push(unavailable('pgv-pr-18', 'Indicadores Individuais dos BDRs', 'Indicadores individuais dos BDRs',
-    'O detalhamento por BDR (reuniões agendadas/realizadas, no-shows, negócios ganhos/perdidos) não está registrado para julho/2026.'));
+  // 17 — Funil de Leads
+  pages.push(setBody(el('pgv-pr-17', 'Funil de Leads'),
+    unavailableBody('Funil de leads',
+      'O funil de leads do CRM desta empresa apresentou inconsistência nos dados de julho/2026 (números idênticos aos de outra operação) — preferimos não exibir um número não confiável nesta apresentação.')));
 
-  pages.push(unavailable('pgv-pr-19', 'Leads Inbound e Orgânico', 'Leads Inbound e Orgânico — motivo de desqualificação',
-    'A quebra de leads Inbound/Orgânico com motivo de desqualificação não está disponível como relatório para julho/2026.'));
+  // 18 — Indicadores Individuais dos BDRs
+  pages.push(setBody(el('pgv-pr-18', 'Indicadores Individuais dos BDRs'),
+    unavailableBody('Indicadores individuais dos BDRs',
+      'O detalhamento por BDR (reuniões agendadas/realizadas, no-shows, negócios ganhos/perdidos) não está registrado para julho/2026.')));
 
-  pages.push(page('pgv-pr-20', 'Base de Clientes 2026',
-    heading('Base de clientes — 2026') +
-    kpiStrip([
-      ['Empresas únicas no ano', summary.unique_clients],
-      ['Itens vendidos no ano', summary.items],
-      ['Empresas em julho', summary.july_clients],
-      ['Itens em julho', summary.july_items]
-    ])));
+  // 19 — Leads Inbound e Orgânico
+  pages.push(setBody(el('pgv-pr-19', 'Leads Inbound e Orgânico'),
+    unavailableBody('Leads Inbound e Orgânico — motivo de desqualificação',
+      'A quebra de leads Inbound/Orgânico com motivo de desqualificação não está disponível como relatório para julho/2026.')));
 
-  pages.push(page('pgv-pr-21', 'Apresentação · Encerramento',
+  // 20 — Encerramento
+  pages.push(setBody(el('pgv-pr-20', 'Apresentação · Encerramento'),
     '<div class="pr-closing">' + WORDMARK + '<p style="margin-top:14px;font-size:13px;color:var(--muted);font-weight:700;">Julho de 2026 · ' + brl(valorJul) + ' realizados · ' + pct2(monthly[JUL].pct) + ' da meta</p></div>'));
 
-  document.getElementById('pr-root').innerHTML = pages.join('');
+  var root = document.getElementById('pr-root');
+  pages.forEach(function(p){ root.appendChild(p); });
+
+  // remove as antigas páginas do dashboard (já esvaziadas do conteúdo reaproveitado) sem slot no modelo do PPT
+  [oldPgv1, oldPgv2, oldPgv3, oldPgv4, oldPgv5, oldPgv6, oldPgv7].forEach(function(n){ if (n && n.parentNode) n.parentNode.removeChild(n); });
 })();
 </script>
 
