@@ -1254,13 +1254,18 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') overlay.cl
     valorPorItem[it.responsavel + '::' + nome] = it.valor;
   });
 
-  function page(id, label, bodyHtml, cls){
-    return '<div class="pgv-page' + (cls ? ' ' + cls : '') + '" id="' + id + '" data-pgv-label="' + label + '">' + bodyHtml + '</div>';
+  function el(id, label, cls){
+    var d = document.createElement('div');
+    d.className = 'pgv-page' + (cls ? ' ' + cls : '');
+    d.id = id;
+    d.setAttribute('data-pgv-label', label);
+    return d;
   }
+  function setBody(node, html){ node.innerHTML = html; return node; }
   function heading(t){ return '<div class="section-title"><h2>' + t + '</h2><div class="rule"></div></div>'; }
-  function unavailable(id, label, titulo, motivo){
-    return page(id, label, heading(titulo) +
-      '<div class="pr-unavailable"><span class="pr-icon">🛈</span><h3>Dado indisponível para julho/2026</h3><p>' + motivo + '</p></div>');
+  function subheading(t){ return '<h3 class="subsection-title">' + t + '</h3>'; }
+  function unavailableBody(titulo, motivo){
+    return heading(titulo) + '<div class="pr-unavailable"><span class="pr-icon">🛈</span><h3>Dado indisponível para julho/2026</h3><p>' + motivo + '</p></div>';
   }
   function kpiStrip(items){
     return '<div class="pr-kpi-strip">' + items.map(function(it){
@@ -1273,46 +1278,65 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') overlay.cl
     return '<div class="pr-bar-track"><div class="pr-bar-fill" style="width:' + w + '%;background:' + color + ';"></div></div>';
   }
 
+  // ---- captura o conteúdo já renderizado pelo dashboard original, para reaproveitar nas páginas da apresentação ----
+  var oldPgv1 = document.getElementById('pgv-1');
+  var oldPgv2 = document.getElementById('pgv-2');
+  var oldPgvDiag = document.getElementById('pgv-diag');
+  var oldPgv3 = document.getElementById('pgv-3');
+  var oldPgv4 = document.getElementById('pgv-4');
+  var oldPgv5 = document.getElementById('pgv-5');
+
+  var heroNode = document.getElementById('hero');
+  var heroNote = oldPgv1 ? oldPgv1.querySelector('.note') : null;
+  var funnelChartNode = document.getElementById('funnel-chart');
+  var funilNode = document.getElementById('funil');
+  var funnelIntro = oldPgv2 ? oldPgv2.querySelector('.page-intro') : null;
+  var diagGridNode = document.getElementById('diag-funil-grid');
+  var diagVendorsNode = document.getElementById('diag-vendors');
+  var diagIntro = oldPgvDiag ? oldPgvDiag.querySelector('.page-intro') : null;
+  var funisDetalhadosNode = document.getElementById('funis-detalhados');
+  var metaVendidoNode = document.getElementById('meta-vendido');
+
   var pages = [];
 
-  pages.push(page('pgv-pr-1', 'Apresentação · Capa',
+  // 1 — Capa
+  pages.push(setBody(el('pgv-pr-1', 'Apresentação · Capa'),
     '<div class="pr-cover">' + MARK + '<h2>Apresentação dos Resultados</h2><p>Julho de 2026</p></div>'));
 
-  pages.push(page('pgv-pr-2', 'Resultado do Comercial',
-    '<div class="pr-hero"><div class="pr-eyebrow">Resultado de indicadores do comercial</div><div class="pr-value" style="font-size:34px;">JULHO DE 2026</div></div>' +
-    kpiStrip([
-      ['Vendas confirmadas', kpis.vendas_confirmadas_count + ' · ' + brl(fin.valor)],
-      ['Pipeline em aberto', kpis.pipeline_aberto_count + ' · ' + kpis.pipeline_aberto_valor_fmt.replace(' ',' ')],
-      ['Taxa de conversão geral', kpis.taxa_conversao_geral],
-      ['Cobertura de CNPJ', kpis.cnpj_cobertura]
-    ])));
+  // 2 — Resultado do Comercial (reaproveita #hero + nota, já renderizados pelo dashboard)
+  var p2 = el('pgv-pr-2', 'Resultado do Comercial');
+  setBody(p2, heading('Resultado de indicadores do comercial') +
+    '<div class="pr-eyebrow" style="text-align:center;font-size:13.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-muted);">Julho de 2026</div>');
+  if (heroNode) p2.appendChild(heroNode);
+  if (heroNote) p2.appendChild(heroNote);
+  pages.push(p2);
 
-  pages.push(page('pgv-pr-3', 'Meta Mensal de Julho',
+  // 3 — Meta Mensal de Julho
+  pages.push(setBody(el('pgv-pr-3', 'Meta Mensal de Julho'),
     heading('Meta mensal de julho') +
     '<div class="pr-hero"><div class="pr-value">' + brl(metaJul) + '</div>' +
     '<div class="pr-sub">Meta anual 2026: ' + brl(metaAnual) + '</div></div>'));
 
-  pages.push(page('pgv-pr-4', 'Valor do Mês de Julho',
+  // 4 — Valor do Mês de Julho
+  pages.push(setBody(el('pgv-pr-4', 'Valor do Mês de Julho'),
     heading('Valor do mês de julho (ajustado)') +
     '<div class="pr-hero"><div class="pr-value">' + brl(valorJul) + '</div>' +
     '<div class="pr-sub">' + pct(pctJul) + ' da meta mensal' + (deltaJunJul !== null ? ' · ' + (deltaJunJul >= 0 ? '+' : '') + pct(deltaJunJul) + ' vs. junho' : '') + '</div></div>'));
 
-  pages.push(page('pgv-pr-5', 'Saldo da Meta Mensal',
+  // 5 — Saldo da Meta Mensal
+  pages.push(setBody(el('pgv-pr-5', 'Saldo da Meta Mensal'),
     heading('Saldo da meta mensal de julho') +
     '<div class="pr-hero"><div class="pr-value ' + (saldoJul >= 0 ? 'good' : 'crit') + '">' + brl(saldoJul) + '</div>' +
     '<div class="pr-sub">' + (saldoJul >= 0 ? 'Meta superada em ' + pct(pctJul - 100) : 'Faltam ' + pct(100 - pctJul) + ' para bater a meta') + '</div></div>'));
 
-  var monthCards = mv.meses.slice(0, JUL + 1).map(function(mes, i){
-    return '<div class="pr-month-card"><div class="mc-name">' + mes.slice(0,3) + '</div>' +
-      '<div class="mc-row"><span>Meta</span><b>' + brl(mv.meta[i]) + '</b></div>' +
-      '<div class="mc-row"><span>Realiz.</span><b>' + brl(mv.valor_ajustado[i]) + '</b></div>' +
-      bar(mv.pct_meta[i]) +
-      '<div class="mc-pct" style="color:' + (mv.pct_meta[i] >= 100 ? 'var(--good)' : 'var(--warn)') + ';">' + pct(mv.pct_meta[i]) + '</div></div>';
-  }).join('');
-  pages.push(page('pgv-pr-6', 'Meta × Realizado 2026',
-    heading('Meta × Realizado — Janeiro a Julho') + '<div class="pr-month-grid">' + monthCards + '</div>'));
+  // 6 — Meta × Realizado 2026 (reaproveita #meta-vendido: tabela completa dos 12 meses + trimestres + vendido por vendedor)
+  var p6 = el('pgv-pr-6', 'Meta × Realizado 2026');
+  setBody(p6, heading('Meta × Realizado — 2026'));
+  if (metaVendidoNode) p6.appendChild(metaVendidoNode);
+  pages.push(p6);
 
-  pages.push(page('pgv-pr-7', 'Resultado Acumulado 2026',
+  // 7 — Resultado Acumulado 2026
+  pages.push(setBody(el('pgv-pr-7', 'Resultado Acumulado 2026'),
     heading('Resultado acumulado 2026 — Janeiro a Julho') +
     '<div class="pr-hero"><div class="pr-value" style="font-size:38px;">' + brl(realAcum) + '</div>' +
     '<div class="pr-sub">Meta acumulada: ' + brl(metaAcum) + ' · ' + pct(pctAcum) + ' da meta</div></div>' +
@@ -1323,72 +1347,95 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') overlay.cl
       ['Ritmo necessário ago–dez', brl(ritmoNecessario) + '/mês']
     ])));
 
-  pages.push(unavailable('pgv-pr-8', 'Gap Vendido × Faturado', 'Gap vendido × faturado',
-    'Essa métrica compara o valor vendido (CRM) com o valor efetivamente faturado (financeiro/contabilidade) e depende de um sistema externo ao Bitrix24 e ao portal de gestão — não temos essa integração disponível para julho/2026. O relatório de junho trazia esse número porque foi apurado manualmente pela auditoria comercial daquele mês.'));
+  // 8 — Gap Vendido × Faturado
+  pages.push(setBody(el('pgv-pr-8', 'Gap Vendido × Faturado'),
+    unavailableBody('Gap vendido × faturado',
+      'Essa métrica compara o valor vendido (CRM) com o valor efetivamente faturado (financeiro/contabilidade) e depende de um sistema externo ao Bitrix24 e ao portal de gestão — não temos essa integração disponível para julho/2026. O relatório de junho trazia esse número porque foi apurado manualmente pela auditoria comercial daquele mês.')));
 
+  // 9 — Valor Vendido por Produto
   var prodRows = produtos.por_vendedor.map(function(v){
     return '<tr><td>' + v.vendedor + '</td><td>' + brl(v.profile) + '</td><td>' + brl(v.gr) + '</td><td>' + brl(v.analytics) + '</td><td>' + brl(v.torre) + '</td><td style="font-weight:700;">' + brl(v.total) + '</td></tr>';
   }).join('');
-  pages.push(page('pgv-pr-9', 'Valor Vendido por Produto',
+  pages.push(setBody(el('pgv-pr-9', 'Valor Vendido por Produto'),
     heading('Valor vendido por produto — Julho de 2026') +
     '<p class="page-intro">' + produtos.cobertura + '</p>' +
     '<div class="pr-table-wrap"><table><thead><tr><th>Vendedor</th><th>Profile</th><th>GR</th><th>Analytics</th><th>Torre</th><th>Total</th></tr></thead>' +
     '<tbody>' + prodRows + '</tbody>' +
     '<tfoot><tr><td>TOTAL</td><td>' + brl(produtos.total.profile) + '</td><td>' + brl(produtos.total.gr) + '</td><td>' + brl(produtos.total.analytics) + '</td><td>' + brl(produtos.total.torre) + '</td><td>' + brl(produtos.total.total) + '</td></tr></tfoot></table></div>'));
 
+  // 10 — Desempenho dos Canais de Venda
   var canalTotal = canalRows.reduce(function(a,r){ return a + r[1]; }, 0);
   var canalRowsHtml = canalRows.map(function(r){
     var share = canalTotal ? (r[1] / canalTotal * 100) : 0;
     return '<tr><td>' + r[0] + '</td><td style="text-align:right;font-weight:700;">' + brl(r[1]) + '</td><td style="text-align:right;">' + pct(share) + '</td></tr>';
   }).join('');
-  pages.push(page('pgv-pr-10', 'Desempenho dos Canais de Venda',
+  pages.push(setBody(el('pgv-pr-10', 'Desempenho dos Canais de Venda'),
     heading('Origem dos contratos assinados — Julho de 2026') +
     '<div class="pr-table-wrap"><table><thead><tr><th>Canal / Origem</th><th style="text-align:right;">Total</th><th style="text-align:right;">% do mês</th></tr></thead>' +
     '<tbody>' + canalRowsHtml + '</tbody><tfoot><tr><td>TOTAL</td><td style="text-align:right;">' + brl(fin.valor) + '</td><td style="text-align:right;">100%</td></tr></tfoot></table></div>'));
 
-  pages.push(page('pgv-pr-11', 'Clientes Fechados · Divisor',
+  // 11 — Divisor: Clientes Fechados
+  pages.push(setBody(el('pgv-pr-11', 'Clientes Fechados · Divisor'),
     '<div class="pr-divider"><h2>Clientes fechados por responsável</h2><p>Julho de 2026 · ' + fin.count + ' contratos assinados · ' + brl(fin.valor) + '</p></div>'));
 
+  // 12–16 — páginas de responsável
   fin.vendedores.forEach(function(v, idx){
     var empresas = porResponsavel[v.vendedor] || [];
     var itensHtml = empresas.map(function(e){
       var val = valorPorItem[v.vendedor + '::' + e];
       return '<li><span>' + e + '</span>' + (val !== undefined ? '<b>' + brl(val) + '</b>' : '') + '</li>';
     }).join('');
-    pages.push(page('pgv-pr-resp-' + idx, 'Responsável · ' + v.vendedor,
+    pages.push(setBody(el('pgv-pr-resp-' + idx, 'Responsável · ' + v.vendedor),
       heading(v.vendedor) +
       '<div class="pr-vendor-summary">' + v.count + ' cliente' + (v.count === 1 ? '' : 's') + ' · ' + brl(v.valor) + '</div>' +
       '<ul class="pr-client-list">' + itensHtml + '</ul>'));
   });
 
-  pages.push(page('pgv-pr-17', 'Vendedores e BDRs · Divisor',
+  // 17 — Divisor: Vendedores e BDRs
+  pages.push(setBody(el('pgv-pr-17', 'Vendedores e BDRs · Divisor'),
     '<div class="pr-divider"><h2>Vendedores e BDRs</h2><p>Funil de leads — Julho de 2026</p></div>'));
 
-  if (leadsFunil) {
-    var totRec = 0, totReu = 0, totConv = 0;
-    var funilRows = leadsFunil.vendedores.map(function(v){
-      var et = {}; v.etapas.forEach(function(e){ et[e.etapa] = e.count; });
-      var rec = et['Leads Recebidos']||0, reu = et['Reunião Agendada']||0, conv = et['Convertido em Oportunidade']||0;
-      totRec += rec; totReu += reu; totConv += conv;
-      return '<tr><td>' + v.vendedor + '</td><td>' + rec + '</td><td>' + reu + '</td><td>' + conv + '</td><td>' + (rec ? pct(conv/rec*100) : '—') + '</td></tr>';
-    }).join('');
-    pages.push(page('pgv-pr-18', 'Funil de Leads',
-      heading('Funil de leads — Vendedores e BDRs · Julho de 2026') +
-      '<div class="pr-table-wrap"><table><thead><tr><th>Vendedor</th><th>Recebidos</th><th>Reunião</th><th>Convertido</th><th>Conversão</th></tr></thead>' +
-      '<tbody>' + funilRows + '</tbody>' +
-      '<tfoot><tr><td>TOTAL</td><td>' + totRec + '</td><td>' + totReu + '</td><td>' + totConv + '</td><td>' + (totRec ? pct(totConv/totRec*100) : '—') + '</td></tr></tfoot></table></div>'));
+  // 18 — Funil de Leads (reaproveita #funis-detalhados, #funnel-chart, #funil, diagnóstico — já renderizados pelo dashboard)
+  var p18 = el('pgv-pr-18', 'Funil de Leads');
+  setBody(p18, heading('Funil de leads — Vendedores e BDRs · Julho de 2026'));
+  if (funisDetalhadosNode) p18.appendChild(funisDetalhadosNode);
+  if (funnelChartNode || funilNode) {
+    var sub1 = document.createElement('div');
+    sub1.innerHTML = subheading('Taxa de conversão por etapa do funil');
+    p18.appendChild(sub1.firstChild);
+    if (funnelIntro) p18.appendChild(funnelIntro);
+    if (funnelChartNode) p18.appendChild(funnelChartNode);
+    if (funilNode) p18.appendChild(funilNode);
   }
+  if (diagGridNode || diagVendorsNode) {
+    var sub2 = document.createElement('div');
+    sub2.innerHTML = subheading('Diagnóstico do funil — o que está travando cada etapa');
+    p18.appendChild(sub2.firstChild);
+    if (diagIntro) p18.appendChild(diagIntro);
+    if (diagGridNode) p18.appendChild(diagGridNode);
+    if (diagVendorsNode) p18.appendChild(diagVendorsNode);
+  }
+  pages.push(p18);
 
-  pages.push(unavailable('pgv-pr-19', 'Indicadores Individuais dos BDRs', 'Indicadores individuais dos BDRs',
-    'O detalhamento por BDR (reuniões agendadas/realizadas, no-shows, negócios ganhos/perdidos) não está registrado no Bitrix24 nem no portal de gestão para julho/2026 — só existia no formato do relatório de junho, apurado manualmente.'));
+  // 19 — Indicadores Individuais dos BDRs
+  pages.push(setBody(el('pgv-pr-19', 'Indicadores Individuais dos BDRs'),
+    unavailableBody('Indicadores individuais dos BDRs',
+      'O detalhamento por BDR (reuniões agendadas/realizadas, no-shows, negócios ganhos/perdidos) não está registrado no Bitrix24 nem no portal de gestão para julho/2026 — só existia no formato do relatório de junho, apurado manualmente.')));
 
-  pages.push(unavailable('pgv-pr-20', 'Leads Inbound e Orgânico', 'Leads Inbound e Orgânico — motivo de desqualificação',
-    'A quebra de leads Inbound/Orgânico com motivo de desqualificação não está disponível como relatório para julho/2026 no Bitrix24 nem no portal de gestão — o gráfico de motivos era montado manualmente para o relatório de junho.'));
+  // 20 — Leads Inbound e Orgânico
+  pages.push(setBody(el('pgv-pr-20', 'Leads Inbound e Orgânico'),
+    unavailableBody('Leads Inbound e Orgânico — motivo de desqualificação',
+      'A quebra de leads Inbound/Orgânico com motivo de desqualificação não está disponível como relatório para julho/2026 no Bitrix24 nem no portal de gestão — o gráfico de motivos era montado manualmente para o relatório de junho.')));
 
-  pages.push(page('pgv-pr-21', 'Apresentação · Encerramento',
+  // 21 — Encerramento
+  pages.push(setBody(el('pgv-pr-21', 'Apresentação · Encerramento'),
     '<div class="pr-closing">' + MARK + '<p style="margin-top:14px;font-size:13px;color:var(--ink-secondary);font-weight:700;">Julho de 2026 · ' + brl(valorJul) + ' realizados · ' + pct(pctJul) + ' da meta</p></div>'));
 
-  document.getElementById('pr-root').innerHTML = pages.join('');
+  var root = document.getElementById('pr-root');
+  pages.forEach(function(p){ root.appendChild(p); });
+
+  // remove as antigas páginas do dashboard (já esvaziadas do conteúdo reaproveitado) e a página 4 (#grid), sem slot no modelo do PPT
+  [oldPgv1, oldPgv2, oldPgvDiag, oldPgv3, oldPgv4, oldPgv5].forEach(function(n){ if (n && n.parentNode) n.parentNode.removeChild(n); });
 })();
 </script>
 
