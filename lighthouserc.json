@@ -1,0 +1,17 @@
+{
+  "ci": {
+    "collect": {
+      "staticDistDir": "./dist",
+      "url": ["http://localhost/index.html", "http://localhost/AtlasGR.html", "http://localhost/Total%20Trac.html"],
+      "numberOfRuns": 1
+    },
+    "assert": {
+      "assertions": {
+        "categories:accessibility": ["warn", { "minScore": 0.9 }],
+        "categories:best-practices": ["warn", { "minScore": 0.85 }],
+        "categories:performance": ["warn", { "minScore": 0.7 }]
+      }
+    },
+    "upload": { "target": "temporary-public-storage" }
+  }
+}

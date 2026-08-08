@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atlasgr.local/schemas/kpis.schema.json",
+  "type": "object",
+  "required": ["updatedAt", "atlasGR", "totalTrac"],
+  "additionalProperties": false,
+  "properties": {
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "atlasGR": { "$ref": "#/$defs/company" },
+    "totalTrac": { "$ref": "#/$defs/company" }
+  },
+  "$defs": {
+    "company": {
+      "type": "object",
+      "required": ["empresa", "ramo", "apresentacao", "pptx", "kpis"],
+      "additionalProperties": false,
+      "properties": {
+        "empresa": { "type": "string", "minLength": 1 },
+        "ramo": { "type": "string", "minLength": 1 },
+        "apresentacao": { "type": "string", "pattern": "\\.html$" },
+        "pptx": { "type": "string", "pattern": "\\.pptx$" },
+        "kpis": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["label", "valor", "sub", "status"],
+            "additionalProperties": false,
+            "properties": {
+              "label": { "type": "string", "minLength": 1 },
+              "valor": { "type": "string", "minLength": 1 },
+              "sub": { "type": "string", "minLength": 1 },
+              "status": { "enum": ["up", "neutral", "ok", "good", "warn", "critical"] }
+            }
+          }
+        }
+      }
+    }
+  }
+}

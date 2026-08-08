@@ -1,0 +1,27 @@
+{
+  "updatedAt": "2026-08-08T09:00:00Z",
+  "atlasGR": {
+    "empresa": "Atlas GR",
+    "ramo": "Gerenciamento de Risco & Inteligência Logística",
+    "apresentacao": "AtlasGR.html",
+    "pptx": "apresentacoes/Apresentacao_Resultados_Julho_2026_AtlasGR.pptx",
+    "kpis": [
+      { "label": "Vendas Confirmadas", "valor": "R$ 38.9K", "sub": "20 contratos (Jul/2026)", "status": "up" },
+      { "label": "Pipeline Aberto", "valor": "R$ 66.5K", "sub": "39 oportunidades em negociação", "status": "neutral" },
+      { "label": "Taxa de Conversão", "valor": "19.7%", "sub": "+2.4% vs mês anterior", "status": "up" },
+      { "label": "Pipeline Leads", "valor": "117 leads", "sub": "Entrada em Julho", "status": "ok" }
+    ]
+  },
+  "totalTrac": {
+    "empresa": "Total Trac",
+    "ramo": "Rastreamento Veicular & Telemetria Avançada",
+    "apresentacao": "Total Trac.html",
+    "pptx": "apresentacoes/Apresentacao_Resultados_Julho_2026_TotalTrac.pptx",
+    "kpis": [
+      { "label": "Frota Ativa Monitorada", "valor": "14.850", "sub": "Veículos em telemetria 24/7", "status": "up" },
+      { "label": "SLA de Disponibilidade", "valor": "99.94%", "sub": "Uptime operacional", "status": "ok" },
+      { "label": "Novos Rastreadores", "valor": "620 un", "sub": "Vendas no mês", "status": "up" },
+      { "label": "Churn Rate", "valor": "0.82%", "sub": "Abaixo do teto de 1.2%", "status": "good" }
+    ]
+  }
+}
