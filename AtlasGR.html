@@ -1077,15 +1077,194 @@ details.kv-details table{margin-top:0 !important;}
 .deck-action-btn.secondary{background:var(--dark);}
 .deck-action-btn:disabled{opacity:.6;cursor:wait;transform:none;}
 .deck-action-btn .dl-icon{font-size:14px;}
+
+/* =====================================================================
+   CPI — Commercial Performance Intelligence (apresentação cinematográfica)
+   ===================================================================== */
+.cpi-launcher{
+  display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:22px;
+  background:linear-gradient(135deg,#15161b,#282a31);border-radius:20px;padding:38px 42px;margin-bottom:26px;color:#fff;
+  box-shadow:0 10px 30px rgba(0,0,0,.18);
+}
+.cpi-launcher-kicker{font-size:11.5px;text-transform:uppercase;letter-spacing:2.2px;color:#ff8a5c;font-weight:800;}
+.cpi-launcher-title{font-size:31px;font-weight:800;margin-top:9px;letter-spacing:-.5px;}
+.cpi-launcher-sub{font-size:13.5px;color:#c7cad0;margin-top:7px;max-width:440px;line-height:1.5;}
+.cpi-launcher-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.cpi-cta{
+  font-family:'Montserrat',Arial,sans-serif;font-size:14px;font-weight:800;color:#16171b;background:#fff;
+  border:none;border-radius:10px;padding:14px 24px;cursor:pointer;display:inline-flex;align-items:center;gap:9px;
+  transition:transform .12s ease;
+}
+.cpi-cta:hover{transform:translateY(-1px);}
+
+.cpi-overlay{
+  position:fixed;inset:0;background:#0b0c0f;z-index:2000;display:none;flex-direction:column;
+  --cpi-orange:var(--orange);--cpi-ink:#f5f6f7;--cpi-ink-dim:#9aa0a8;--cpi-good:#2fbf71;--cpi-crit:#ff5a4e;
+}
+.cpi-overlay.open{display:flex;}
+body.cpi-locked{overflow:hidden;}
+.cpi-pages{flex:1;position:relative;overflow:hidden;}
+.cpi-page{
+  position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:64px 100px 100px;opacity:0;pointer-events:none;transform:translateY(26px);
+  transition:opacity .5s ease, transform .5s ease;color:var(--cpi-ink);
+  overflow-y:auto;
+}
+.cpi-page.active{opacity:1;pointer-events:auto;transform:translateY(0);}
+.cpi-page.theme-dark{background:#0b0c0f;}
+.cpi-page.theme-graphite{background:#15171c;}
+.cpi-page.theme-orange{background:radial-gradient(circle at 15% 20%, #ff7a3d, #e4470f 60%);}
+.cpi-page.theme-light{background:#f6f5f3;color:#1c1d20;}
+.cpi-page.theme-light .cpi-sub, .cpi-page.theme-light .cpi-ink-dim, .cpi-page.theme-light .cpi-kpi-tile .s{color:#5b5e64;}
+.cpi-page.theme-light .cpi-kpi-tile{background:#fff;border-color:#e4e2de;}
+.cpi-page.theme-light .cpi-table th{color:#8a8d93;border-bottom-color:#e4e2de;}
+.cpi-page.theme-light .cpi-table td{border-bottom-color:#ececea;}
+.cpi-page.theme-light .cpi-channel-track{background:#e9e7e3;}
+.cpi-page.theme-light .cpi-compare-track{background:#eceae6;}
+.cpi-page.theme-light .cpi-evo-bar{background:#e2e0db;}
+.cpi-page.theme-light .cpi-client-card{background:#fff;border-color:#e4e2de;}
+
+.cpi-kicker{font-size:12.5px;letter-spacing:3px;text-transform:uppercase;font-weight:800;color:var(--cpi-orange);margin-bottom:16px;}
+.cpi-title{font-size:clamp(30px,4.6vw,60px);font-weight:800;line-height:1.06;margin:0 0 16px;letter-spacing:-1px;}
+.cpi-sub{font-size:17px;color:var(--cpi-ink-dim);max-width:720px;line-height:1.55;font-weight:500;}
+.cpi-narrative{
+  font-size:19px;font-weight:600;margin-top:26px;max-width:760px;line-height:1.5;
+  border-left:3px solid var(--cpi-orange);padding-left:18px;
+}
+.cpi-mark{width:46px;height:auto;margin-bottom:22px;}
+
+.cpi-hero-stat{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;margin:22px 0 8px;}
+.cpi-hero-value{font-size:clamp(46px,8.5vw,112px);font-weight:800;line-height:1;letter-spacing:-2px;}
+.cpi-hero-badge{font-size:14px;font-weight:800;padding:8px 18px;border-radius:999px;white-space:nowrap;}
+.cpi-hero-badge.good{background:rgba(47,191,113,.16);color:#4ee08a;}
+.cpi-hero-badge.crit{background:rgba(255,90,78,.16);color:#ff8478;}
+.cpi-page.theme-light .cpi-hero-badge.good{background:#e3f7ec;color:#178247;}
+.cpi-page.theme-light .cpi-hero-badge.crit{background:#fde7e4;color:#b93b2c;}
+
+.cpi-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:18px;margin-top:32px;max-width:1120px;}
+.cpi-kpi-tile{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:20px 22px;}
+.cpi-kpi-tile .k{font-size:11.5px;text-transform:uppercase;letter-spacing:1px;color:var(--cpi-ink-dim);font-weight:800;}
+.cpi-kpi-tile .v{font-size:28px;font-weight:800;margin-top:9px;}
+.cpi-kpi-tile .s{font-size:12px;color:var(--cpi-ink-dim);margin-top:5px;}
+
+.cpi-compare{display:flex;gap:52px;align-items:flex-end;margin-top:36px;flex-wrap:wrap;}
+.cpi-compare-col{display:flex;flex-direction:column;align-items:flex-start;gap:10px;}
+.cpi-compare-track{width:66px;height:220px;background:rgba(255,255,255,.07);border-radius:14px;display:flex;align-items:flex-end;overflow:hidden;}
+.cpi-compare-fill{width:100%;border-radius:14px 14px 0 0;transition:height 1s cubic-bezier(.16,1,.3,1);}
+.cpi-compare-label{font-size:11.5px;text-transform:uppercase;letter-spacing:1px;color:var(--cpi-ink-dim);font-weight:800;}
+.cpi-compare-value{font-size:19px;font-weight:800;}
+
+.cpi-evo{display:flex;align-items:flex-end;gap:20px;height:250px;margin-top:40px;max-width:920px;}
+.cpi-evo-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;cursor:pointer;position:relative;outline:none;}
+.cpi-evo-bars{display:flex;align-items:flex-end;gap:4px;height:100%;width:100%;justify-content:center;}
+.cpi-evo-bar{width:15px;border-radius:4px 4px 0 0;background:rgba(255,255,255,.16);transition:height .5s ease;}
+.cpi-evo-bar.real{background:var(--cpi-orange);}
+.cpi-evo-label{margin-top:10px;font-size:11px;color:var(--cpi-ink-dim);font-weight:800;text-transform:uppercase;}
+.cpi-evo-tooltip{
+  position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#000;color:#fff;font-size:12px;
+  padding:9px 13px;border-radius:9px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;
+  margin-bottom:10px;z-index:5;text-align:left;line-height:1.6;
+}
+.cpi-evo-col:hover .cpi-evo-tooltip, .cpi-evo-col:focus-visible .cpi-evo-tooltip{opacity:1;}
+.cpi-evo-legend{display:flex;gap:20px;margin-top:18px;font-size:12px;color:var(--cpi-ink-dim);font-weight:700;}
+.cpi-evo-legend span{display:inline-flex;align-items:center;gap:6px;}
+.cpi-evo-legend i{width:10px;height:10px;border-radius:3px;display:inline-block;}
+
+.cpi-table{width:100%;max-width:920px;border-collapse:collapse;margin-top:28px;font-size:13.5px;}
+.cpi-table th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--cpi-ink-dim);padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.16);font-weight:800;}
+.cpi-table td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.07);}
+.cpi-table tfoot td{font-weight:800;border-top:2px solid rgba(255,255,255,.22);border-bottom:none;}
+
+.cpi-channels{display:flex;flex-direction:column;gap:17px;margin-top:32px;max-width:780px;width:100%;}
+.cpi-channel-row .ch-top{display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-bottom:7px;gap:12px;}
+.cpi-channel-track{height:10px;border-radius:6px;background:rgba(255,255,255,.09);overflow:hidden;}
+.cpi-channel-fill{height:100%;background:var(--cpi-orange);border-radius:6px;transition:width .8s cubic-bezier(.16,1,.3,1);}
+
+.cpi-client-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:30px;max-width:1020px;}
+.cpi-client-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:16px 18px;}
+.cpi-client-card .cc-name{font-weight:700;font-size:13.5px;}
+.cpi-client-card .cc-meta{font-size:11.5px;color:var(--cpi-ink-dim);margin-top:4px;}
+.cpi-client-card .cc-valor{font-size:15px;font-weight:800;margin-top:9px;color:var(--cpi-orange);}
+
+.cpi-close{position:absolute;top:22px;right:28px;background:rgba(255,255,255,.09);border:none;color:#fff;width:38px;height:38px;border-radius:50%;font-size:15px;cursor:pointer;z-index:20;}
+.cpi-page.theme-light ~ .cpi-close{color:#1c1d20;}
+.cpi-mode-toggle{position:absolute;top:22px;left:28px;display:flex;gap:8px;z-index:20;}
+.cpi-mode-btn{font-family:'Montserrat',Arial,sans-serif;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;}
+.cpi-mode-btn.active{background:var(--cpi-orange);border-color:var(--cpi-orange);}
+.cpi-dq-btn{font-size:15px;}
+.cpi-dq-panel{
+  position:absolute;top:68px;left:28px;background:#0e0f12;border:1px solid rgba(255,255,255,.16);border-radius:14px;
+  padding:16px 18px;max-width:360px;max-height:56vh;overflow:auto;z-index:25;display:none;box-shadow:0 20px 50px rgba(0,0,0,.4);
+}
+.cpi-dq-panel.open{display:block;}
+.cpi-dq-panel h4{margin:0 0 4px;font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:#ff8a5c;}
+.cpi-dq-panel .dq-meta{font-size:11px;color:var(--cpi-ink-dim);margin-bottom:10px;}
+.cpi-dq-item{font-size:12px;padding:7px 0;border-top:1px dashed rgba(255,255,255,.14);color:#d8dade;line-height:1.45;}
+.cpi-dq-item:first-child{border-top:none;}
+.cpi-dq-item.ok::before{content:'✓  ';color:#4ee08a;font-weight:800;}
+.cpi-dq-item.warn::before{content:'⚠  ';color:#ffcf5c;font-weight:800;}
+
+.cpi-chrome{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;padding:18px 28px;background:linear-gradient(0deg, rgba(0,0,0,.6), transparent);z-index:20;pointer-events:none;}
+.cpi-chrome > *{pointer-events:auto;}
+.cpi-nav{display:flex;align-items:center;gap:16px;}
+.cpi-nav-btn{width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:#fff;font-size:18px;cursor:pointer;}
+.cpi-nav-btn:disabled{opacity:.3;cursor:default;}
+.cpi-counter{color:#fff;font-size:12.5px;font-weight:700;min-width:56px;text-align:center;}
+.cpi-progress{display:flex;gap:6px;flex-wrap:wrap;max-width:420px;justify-content:center;}
+.cpi-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.28);border:none;cursor:pointer;padding:0;}
+.cpi-dot.active{background:var(--cpi-orange);width:22px;border-radius:5px;}
+.cpi-page-label{color:#fff;font-size:12px;font-weight:700;opacity:.85;}
+
+@media (max-width:760px){
+  .cpi-page{padding:100px 26px 130px;}
+  .cpi-compare{gap:26px;}
+  .cpi-compare-track{width:52px;height:160px;}
+  .cpi-evo{height:190px;gap:10px;}
+  .cpi-evo-bar{width:9px;}
+  .cpi-chrome{flex-direction:column;gap:10px;padding:14px 16px;}
+  .cpi-progress{max-width:none;}
+  .cpi-launcher{padding:26px 24px;}
+}
+@media print{
+  .cpi-overlay{display:none !important;}
+}
 </style>
 
 <div class="updates-wrap pgv-page" id="pgv-6" data-pgv-label="Apresentação dos Resultados">
 <div class="section-title"><h2>Apresentação dos Resultados de Julho</h2><div class="rule"></div></div>
-<div class="deck-actions">
-  <button class="deck-action-btn" id="btn-download-pptx"><span class="dl-icon">⬇</span> Baixar apresentação (.pptx)</button>
-  <button class="deck-action-btn secondary" id="btn-download-xlsx"><span class="dl-icon">⬇</span> Baixar planilha (.xlsx)</button>
+
+<div class="cpi-launcher">
+  <div class="cpi-launcher-copy">
+    <div class="cpi-launcher-kicker">Atlas GR · Commercial Performance Intelligence</div>
+    <div class="cpi-launcher-title">Julho de 2026</div>
+    <div class="cpi-launcher-sub">Uma tela por indicador, uma história por trás de cada número. Navegue por teclado, scroll ou toque.</div>
+  </div>
+  <div class="cpi-launcher-actions">
+    <button class="cpi-cta" id="cpi-open">▶ Iniciar apresentação</button>
+    <button class="deck-action-btn" id="btn-download-pptx"><span class="dl-icon">⬇</span> Baixar apresentação (.pptx)</button>
+    <button class="deck-action-btn secondary" id="btn-download-xlsx"><span class="dl-icon">⬇</span> Baixar planilha (.xlsx)</button>
+  </div>
 </div>
+
 <div id="forecast-atualizado"></div>
+</div>
+
+<div class="cpi-overlay" id="cpi-overlay" aria-hidden="true" role="dialog" aria-label="Apresentação Atlas GR — Commercial Performance Intelligence">
+  <div class="cpi-pages" id="cpi-pages"></div>
+  <div class="cpi-mode-toggle">
+    <button class="cpi-mode-btn active" id="cpi-mode-present" type="button">Apresentação</button>
+    <button class="cpi-mode-btn" id="cpi-mode-explore" type="button">Exploração</button>
+    <button class="cpi-mode-btn cpi-dq-btn" id="cpi-dq-toggle" type="button" title="Qualidade dos dados">◈</button>
+  </div>
+  <div class="cpi-dq-panel" id="cpi-dq-panel"></div>
+  <button class="cpi-close" id="cpi-close" aria-label="Fechar apresentação">✕</button>
+  <div class="cpi-chrome">
+    <button class="cpi-nav-btn" id="cpi-prev" aria-label="Página anterior">‹</button>
+    <div class="cpi-progress" id="cpi-progress"></div>
+    <div class="cpi-page-label" id="cpi-page-label"></div>
+    <div class="cpi-counter" id="cpi-counter"></div>
+    <button class="cpi-nav-btn" id="cpi-next" aria-label="Próxima página">›</button>
+  </div>
 </div>
 
 <script>
@@ -1180,162 +1359,399 @@ details.kv-details table{margin-top:0 !important;}
       JUL, metaJul, valorJul, saldoJul, pctJul, canalRows, porResponsavel, metaAcum, realizadoAcum, pctAcum };
   }
 
+  // ---------------------------------------------------------------------
+  // COMMERCIAL PERFORMANCE INTELLIGENCE — validação, storytelling e páginas
+  // ---------------------------------------------------------------------
+  function buildValidation(pd){
+    const { mv, JUL, fech, canalRows } = pd;
+    const EPS = 0.5;
+    const checks = [];
+
+    const realizado = mv.valor_ajustado[JUL];
+    const metaMes = mv.meta[JUL];
+    const saldoCalc = Math.round((realizado - metaMes) * 100) / 100;
+    checks.push({
+      label: 'Saldo de julho = Valor ajustado − Meta',
+      ok: Math.abs(saldoCalc - mv.saldo[JUL]) < EPS,
+      detail: `${brl(realizado)} − ${brl(metaMes)} = ${brl(saldoCalc)} (informado: ${brl(mv.saldo[JUL])})`,
+    });
+
+    const somaVendedores = Math.round(fech.vendedores.reduce((a,v) => a+v.valor, 0) * 100) / 100;
+    checks.push({
+      label: 'Soma por responsável = total de clientes fechados',
+      ok: Math.abs(somaVendedores - fech.valor) < EPS,
+      detail: `${brl(somaVendedores)} (soma) vs ${brl(fech.valor)} (total)`,
+    });
+
+    const somaCanais = Math.round(canalRows.reduce((a,[,v]) => a+v, 0) * 100) / 100;
+    checks.push({
+      label: 'Soma por canal/origem = total de clientes fechados',
+      ok: Math.abs(somaCanais - fech.valor) < EPS,
+      detail: `${brl(somaCanais)} (soma) vs ${brl(fech.valor)} (total)`,
+    });
+
+    const divergencia = Math.round((mv.vendido[JUL] - fech.valor) * 100) / 100;
+    checks.push({
+      label: 'Vendido (planilha Meta x Vendido) vs. soma dos registros de fechamento',
+      ok: Math.abs(divergencia) < EPS,
+      detail: Math.abs(divergencia) < EPS
+        ? `Ambas as fontes batem em ${brl(mv.vendido[JUL])}.`
+        : `Planilha: ${brl(mv.vendido[JUL])} · Registros individuais: ${brl(fech.valor)} · Diferença: ${brl(divergencia)}. São duas fontes distintas — nenhum valor foi ajustado para forçar o fechamento.`,
+    });
+
+    const prod = DATA.produtos_julho;
+    if (prod) {
+      checks.push({ label: 'Cobertura de dados por produto', ok: false, detail: prod.cobertura });
+    }
+    return checks;
+  }
+
+  function storyMetaMensal(pct, saldo){
+    if (pct === null || pct === undefined) return null;
+    return pct >= 100
+      ? `Julho encerrou acima da meta mensal, com saldo positivo de ${brl(Math.abs(saldo))}.`
+      : `Julho encerrou abaixo da meta mensal, com saldo negativo de ${brl(Math.abs(saldo))}.`;
+  }
+  function storyAcumulado(pct, saldo){
+    if (pct === null || pct === undefined) return null;
+    return pct >= 100
+      ? `O acumulado de 2026 até julho está acima da meta, com saldo positivo de ${brl(Math.abs(saldo))}.`
+      : `O acumulado de 2026 até julho está abaixo da meta, com saldo negativo de ${brl(Math.abs(saldo))}.`;
+  }
+  function storyChannel(canalRows, total){
+    if (!canalRows.length || !total) return null;
+    const [nome, valor] = canalRows[0];
+    const pct = 100 * valor / total;
+    if (pct < 30) return null;
+    return `${nome} foi o principal motor de receita em julho, respondendo por ${pct.toFixed(0)}% do valor fechado.`;
+  }
+  function storySeller(vendedores){
+    if (!vendedores || !vendedores.length) return null;
+    const total = vendedores.reduce((a,v) => a+v.valor, 0);
+    if (!total) return null;
+    const top = [...vendedores].sort((a,b) => b.valor-a.valor)[0];
+    const pct = 100 * top.valor / total;
+    return `${top.vendedor} liderou a geração de receita em julho, com ${brl(top.valor)} (${pct.toFixed(0)}% do total fechado).`;
+  }
+  function storyGap(pctAjuste){
+    if (pctAjuste === null || pctAjuste === undefined) return null;
+    if (Math.abs(pctAjuste) < 0.05) return 'O valor vendido em julho não sofreu ajuste — bateu exatamente o que foi contabilizado para a meta.';
+    return pctAjuste < 0
+      ? `O valor contabilizado para a meta em julho ficou ${Math.abs(pctAjuste).toFixed(2).replace('.',',')}% abaixo do vendido bruto.`
+      : `O valor contabilizado para a meta em julho ficou ${pctAjuste.toFixed(2).replace('.',',')}% acima do vendido bruto.`;
+  }
+
+  function buildCinematicPages(pd){
+    const { mv, fech, JUL, metaJul, valorJul, saldoJul, pctJul, canalRows, metaAcum, realizadoAcum, pctAcum } = pd;
+
+    const p01 = { theme: 'orange', html: `
+      <svg class="cpi-mark" viewBox="0 0 260 175" xmlns="http://www.w3.org/2000/svg">
+        <polygon fill="#fff" points="153.4 87.56 167.65 62.87 167.68 62.85 178.13 44.72 178.11 44.68 178.15 44.68 203.95 0 182.97 0 152.31 0 110.4 0 99.17 0 73.37 44.68 73.35 44.72 62.87 62.87 48.62 87.56 48.41 87.94 0 171.76 83.81 171.76 104.78 171.76 125.74 135.49 125.76 135.44 153.19 87.94 153.4 87.56"/>
+        <polygon fill="#fff" points="203.07 87.94 175.75 87.94 153.9 125.79 153.9 125.83 137.02 155.01 146.7 171.76 209.57 171.76 251.48 171.76 203.07 87.94"/>
+      </svg>
+      <div class="cpi-kicker" style="color:rgba(255,255,255,.85)">Atlas GR</div>
+      <div class="cpi-title" style="color:#fff;">Commercial<br>Performance<br>Intelligence</div>
+      <div class="cpi-sub" style="color:rgba(255,255,255,.85)">Julho de 2026</div>
+      <div class="cpi-hero-stat">
+        <div class="cpi-hero-value" style="color:#fff;" data-count-to="${valorJul}" data-count-fmt="brl">R$ 0,00</div>
+      </div>
+    `};
+
+    const p02 = { theme: 'dark', html: `
+      <div class="cpi-kicker">Como foi julho?</div>
+      <div class="cpi-title">Resumo Executivo</div>
+      <div class="cpi-kpi-grid">
+        <div class="cpi-kpi-tile"><div class="k">Receita (vendido)</div><div class="v" data-count-to="${mv.vendido[JUL]}" data-count-fmt="brl">R$ 0,00</div><div class="s">valor bruto informado no mês</div></div>
+        <div class="cpi-kpi-tile"><div class="k">Meta do mês</div><div class="v">${brl(metaJul)}</div></div>
+        <div class="cpi-kpi-tile"><div class="k">Atingimento</div><div class="v" style="color:${pctJul>=100?'#4ee08a':'#ff8478'}">${pctFmt(pctJul)}</div></div>
+        <div class="cpi-kpi-tile"><div class="k">Saldo</div><div class="v" style="color:${saldoJul>=0?'#4ee08a':'#ff8478'}">${saldoJul>=0?'+':'-'}${brl(Math.abs(saldoJul))}</div></div>
+        <div class="cpi-kpi-tile"><div class="k">Clientes fechados</div><div class="v">${fech.count}</div></div>
+        <div class="cpi-kpi-tile"><div class="k">Pipeline em aberto</div><div class="v">${DATA.kpis.pipeline_aberto_valor_fmt}</div><div class="s">${DATA.kpis.pipeline_aberto_count} oportunidades</div></div>
+      </div>
+      <div class="cpi-narrative">${storyMetaMensal(pctJul, saldoJul) || ''}</div>
+    `};
+
+    const maxCompare03 = Math.max(metaJul, valorJul) || 1;
+    const p03 = { theme: 'light', html: `
+      <div class="cpi-kicker">Batemos a meta?</div>
+      <div class="cpi-title">Meta × Realizado — Julho</div>
+      <div class="cpi-compare">
+        <div class="cpi-compare-col">
+          <div class="cpi-compare-track"><div class="cpi-compare-fill" style="height:${100*metaJul/maxCompare03}%;background:#c7c9cd;"></div></div>
+          <div class="cpi-compare-label">Meta</div>
+          <div class="cpi-compare-value">${brl(metaJul)}</div>
+        </div>
+        <div class="cpi-compare-col">
+          <div class="cpi-compare-track"><div class="cpi-compare-fill" style="height:${100*valorJul/maxCompare03}%;background:${pctJul>=100?'#1D8A45':'#C4432E'};"></div></div>
+          <div class="cpi-compare-label">Realizado</div>
+          <div class="cpi-compare-value">${brl(valorJul)}</div>
+        </div>
+      </div>
+      <div class="cpi-hero-stat">
+        <div class="cpi-hero-value" data-count-to="${pctJul}" data-count-fmt="pct">0%</div>
+        <div class="cpi-hero-badge ${pctJul>=100?'good':'crit'}">${pctJul>=100?'ACIMA DA META':'ABAIXO DA META'}</div>
+      </div>
+      <div class="cpi-narrative">${storyMetaMensal(pctJul, saldoJul) || ''}</div>
+    `};
+
+    const p04 = { theme: 'dark', html: `
+      <div class="cpi-kicker">O que ficou ${saldoJul>=0?'acima':'abaixo'} da meta?</div>
+      <div class="cpi-title">Saldo de Julho</div>
+      <div class="cpi-hero-stat">
+        <div class="cpi-hero-value" style="color:${saldoJul>=0?'#4ee08a':'#ff8478'}" data-count-to="${saldoJul}" data-count-fmt="signed">R$ 0,00</div>
+      </div>
+      <div class="cpi-sub">${saldoJul>=0?'Acima':'Abaixo'} da meta mensal de ${brl(metaJul)}.</div>
+      <div class="cpi-narrative">${storyMetaMensal(pctJul, saldoJul) || ''}</div>
+    `};
+
+    const evoMonths = mv.meses.slice(0, JUL+1);
+    const maxVal = Math.max(...mv.meta.slice(0,JUL+1), ...mv.valor_ajustado.slice(0,JUL+1));
+    const evoCols = evoMonths.map((mes, i) => {
+      const metaH = maxVal ? Math.round(100*mv.meta[i]/maxVal) : 0;
+      const realH = maxVal ? Math.round(100*mv.valor_ajustado[i]/maxVal) : 0;
+      return `
+        <div class="cpi-evo-col" tabindex="0">
+          <div class="cpi-evo-tooltip"><b>${mes}</b><br>Meta: ${brl(mv.meta[i])}<br>Realizado: ${brl(mv.valor_ajustado[i])}<br>${pctFmt(mv.pct_meta[i])} da meta</div>
+          <div class="cpi-evo-bars">
+            <div class="cpi-evo-bar" style="height:${metaH}%"></div>
+            <div class="cpi-evo-bar real" style="height:${realH}%"></div>
+          </div>
+          <div class="cpi-evo-label">${mes.slice(0,3)}</div>
+        </div>
+      `;
+    }).join('');
+    const p05 = { theme: 'graphite', html: `
+      <div class="cpi-kicker">Como chegamos até julho?</div>
+      <div class="cpi-title">Meta × Realizado — Janeiro a Julho</div>
+      <div class="cpi-evo">${evoCols}</div>
+      <div class="cpi-evo-legend"><span><i style="background:rgba(255,255,255,.3)"></i>Meta</span><span><i style="background:var(--orange)"></i>Realizado</span></div>
+    `};
+
+    const p06 = { theme: 'orange', html: `
+      <div class="cpi-kicker" style="color:rgba(255,255,255,.85)">Qual é a fotografia do ano até agora?</div>
+      <div class="cpi-title" style="color:#fff;">Resultado Acumulado</div>
+      <div class="cpi-hero-stat">
+        <div class="cpi-hero-value" style="color:#fff" data-count-to="${realizadoAcum}" data-count-fmt="brl">R$ 0,00</div>
+        <div class="cpi-hero-badge ${pctAcum>=100?'good':'crit'}">${pctFmt(pctAcum)} da meta</div>
+      </div>
+      <div class="cpi-sub" style="color:rgba(255,255,255,.9)">Meta acumulada (jan-jul): ${brl(metaAcum)} · Saldo do ano: ${mv.saldo_2026>=0?'+':'-'}${brl(Math.abs(mv.saldo_2026))}</div>
+      <div class="cpi-narrative" style="border-color:#fff;color:#fff;">${storyAcumulado(pctAcum, mv.saldo_2026) || ''}</div>
+    `};
+
+    const gapValor = Math.round((valorJul - mv.vendido[JUL]) * 100) / 100;
+    const pctAjusteJul = mv.pct_ajuste[JUL];
+    const maxCompare07 = Math.max(mv.vendido[JUL], valorJul) || 1;
+    const p07 = { theme: 'light', html: `
+      <div class="cpi-kicker">Onde existe diferença entre o vendido e o contabilizado?</div>
+      <div class="cpi-title">Gap — Vendido × Valor Contabilizado</div>
+      <div class="cpi-compare">
+        <div class="cpi-compare-col">
+          <div class="cpi-compare-track"><div class="cpi-compare-fill" style="height:${100*mv.vendido[JUL]/maxCompare07}%;background:#c7c9cd;"></div></div>
+          <div class="cpi-compare-label">Vendido (bruto)</div>
+          <div class="cpi-compare-value">${brl(mv.vendido[JUL])}</div>
+        </div>
+        <div class="cpi-compare-col">
+          <div class="cpi-compare-track"><div class="cpi-compare-fill" style="height:${100*valorJul/maxCompare07}%;background:var(--orange);"></div></div>
+          <div class="cpi-compare-label">Contabilizado p/ meta</div>
+          <div class="cpi-compare-value">${brl(valorJul)}</div>
+        </div>
+      </div>
+      <div class="cpi-hero-stat">
+        <div class="cpi-hero-value" style="font-size:clamp(34px,5vw,56px);color:${gapValor>=0?'#178247':'#b93b2c'}">${gapValor>=0?'+':'-'}${brl(Math.abs(gapValor))}</div>
+        <div class="cpi-hero-badge ${gapValor>=0?'good':'crit'}">${pctFmt(Math.abs(pctAjusteJul))} de ajuste</div>
+      </div>
+      <div class="cpi-narrative">${storyGap(pctAjusteJul) || ''}</div>
+    `};
+
+    const prod = DATA.produtos_julho;
+    const p08html = prod ? `
+      <div class="cpi-kicker">O que estamos vendendo?</div>
+      <div class="cpi-title">Produtos — Julho de 2026</div>
+      <div class="cpi-sub">${prod.cobertura}</div>
+      <table class="cpi-table">
+        <thead><tr><th>Vendedor</th><th>Profile</th><th>GR</th><th>Analytics</th><th>Torre</th><th>Total</th></tr></thead>
+        <tbody>${prod.por_vendedor.map(v => `<tr><td>${v.vendedor}</td><td>${brl(v.profile)}</td><td>${brl(v.gr)}</td><td>${brl(v.analytics)}</td><td>${brl(v.torre)}</td><td style="font-weight:800;">${brl(v.total)}</td></tr>`).join('')}</tbody>
+        <tfoot><tr><td>TOTAL</td><td>${brl(prod.total.profile)}</td><td>${brl(prod.total.gr)}</td><td>${brl(prod.total.analytics)}</td><td>${brl(prod.total.torre)}</td><td>${brl(prod.total.total)}</td></tr></tfoot>
+      </table>
+    ` : `
+      <div class="cpi-kicker">O que estamos vendendo?</div>
+      <div class="cpi-title">Produtos</div>
+      <div class="cpi-sub">Dados de produto indisponíveis para este período.</div>
+    `;
+    const p08 = { theme: 'graphite', html: p08html };
+
+    const totalCanal = canalRows.reduce((a,[,v]) => a+v, 0);
+    const canalHtml = canalRows.map(([canal, valor]) => {
+      const pct = totalCanal ? 100*valor/totalCanal : 0;
+      return `
+        <div class="cpi-channel-row">
+          <div class="ch-top"><span>${canal}</span><span>${brl(valor)} · ${pct.toFixed(0)}%</span></div>
+          <div class="cpi-channel-track"><div class="cpi-channel-fill" style="width:${pct}%"></div></div>
+        </div>
+      `;
+    }).join('');
+    const p09 = { theme: 'dark', html: `
+      <div class="cpi-kicker">De onde veio a receita?</div>
+      <div class="cpi-title">Canais de Venda — Julho</div>
+      <div class="cpi-channels">${canalHtml}</div>
+      <div class="cpi-narrative">${storyChannel(canalRows, totalCanal) || ''}</div>
+    `};
+
+    const clientSorted = [...fech.items].sort((a,b) => b.valor - a.valor);
+    const CLIENT_LIMIT = 8;
+    const clientCards = clientSorted.slice(0, CLIENT_LIMIT).map(it => `
+      <div class="cpi-client-card">
+        <div class="cc-name">${it.empresa}</div>
+        <div class="cc-meta">${[it.responsavel, it.origem].filter(Boolean).join(' · ')}</div>
+        <div class="cc-valor">${it.valor_fmt}</div>
+      </div>
+    `).join('');
+    const clientRest = clientSorted.length - CLIENT_LIMIT;
+    const p10 = { theme: 'orange', html: `
+      <div class="cpi-kicker" style="color:rgba(255,255,255,.85)">Quem conquistamos?</div>
+      <div class="cpi-title" style="color:#fff;">${fech.count} Clientes Fechados</div>
+      <div class="cpi-hero-stat"><div class="cpi-hero-value" style="color:#fff" data-count-to="${fech.valor}" data-count-fmt="brl">R$ 0,00</div></div>
+      <div class="cpi-client-grid">${clientCards}</div>
+      ${clientRest > 0 ? `<div class="cpi-sub" style="color:rgba(255,255,255,.85);margin-top:14px;">+ ${clientRest} outros clientes fechados — veja a lista completa no Modo Exploração.</div>` : ''}
+      <div class="cpi-narrative" style="border-color:#fff;color:#fff;">${storySeller(fech.vendedores) || ''}</div>
+    `};
+
+    return [
+      { label: 'Abertura', ...p01 },
+      { label: 'Resumo Executivo', ...p02 },
+      { label: 'Meta × Realizado', ...p03 },
+      { label: 'Saldo', ...p04 },
+      { label: 'Evolução', ...p05 },
+      { label: 'Acumulado', ...p06 },
+      { label: 'Gap', ...p07 },
+      { label: 'Produtos', ...p08 },
+      { label: 'Canais', ...p09 },
+      { label: 'Clientes', ...p10 },
+    ];
+  }
+
+  function setupCinema(pd){
+    const pages = buildCinematicPages(pd);
+    const validation = buildValidation(pd);
+
+    const overlay = document.getElementById('cpi-overlay');
+    const pagesEl = document.getElementById('cpi-pages');
+    const progressEl = document.getElementById('cpi-progress');
+    const counterEl = document.getElementById('cpi-counter');
+    const labelEl = document.getElementById('cpi-page-label');
+    const prevBtn = document.getElementById('cpi-prev');
+    const nextBtn = document.getElementById('cpi-next');
+    const closeBtn = document.getElementById('cpi-close');
+    const openBtn = document.getElementById('cpi-open');
+    const modeExploreBtn = document.getElementById('cpi-mode-explore');
+    const dqToggle = document.getElementById('cpi-dq-toggle');
+    const dqPanel = document.getElementById('cpi-dq-panel');
+
+    pagesEl.innerHTML = pages.map((p,i) => `<div class="cpi-page theme-${p.theme}" data-i="${i}">${p.html}</div>`).join('');
+    progressEl.innerHTML = pages.map((_,i) => `<button class="cpi-dot" data-i="${i}" aria-label="Ir para página ${i+1}"></button>`).join('');
+    dqPanel.innerHTML = `
+      <h4>Qualidade dos dados</h4>
+      <div class="dq-meta">Fonte: Bitrix24 (webhook AUDITORIA_COMERCIAL_MENSAL_ATLASGR) · Competência: ${DATA.competencia}</div>
+      ${validation.map(v => `<div class="cpi-dq-item ${v.ok?'ok':'warn'}"><b>${v.label}</b><br>${v.detail}</div>`).join('')}
+    `;
+
+    const pageEls = Array.from(pagesEl.children);
+    let current = 0;
+
+    function animateCount(el){
+      const to = parseFloat(el.getAttribute('data-count-to'));
+      if (Number.isNaN(to)) return;
+      const fmt = el.getAttribute('data-count-fmt') || 'brl';
+      const dur = 900;
+      const t0 = performance.now();
+      function fmtValue(v){
+        if (fmt === 'pct') return pctFmt(v);
+        if (fmt === 'signed') return (v>=0?'+':'-') + brl(Math.abs(v));
+        return brl(v);
+      }
+      function tick(t){
+        const p = Math.max(0, Math.min(1, (t - t0) / dur));
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = fmtValue(to * eased);
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = fmtValue(to);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function render(){
+      pageEls.forEach((el,i) => el.classList.toggle('active', i===current));
+      progressEl.querySelectorAll('.cpi-dot').forEach((d,i) => d.classList.toggle('active', i===current));
+      counterEl.textContent = (current+1) + ' / ' + pages.length;
+      labelEl.textContent = pages[current].label;
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === pages.length - 1;
+      pageEls[current].querySelectorAll('[data-count-to]').forEach(animateCount);
+    }
+    function goTo(i){
+      current = Math.max(0, Math.min(i, pages.length-1));
+      render();
+    }
+    function open(){
+      overlay.classList.add('open');
+      overlay.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('cpi-locked');
+      goTo(0);
+    }
+    function close(){
+      overlay.classList.remove('open');
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('cpi-locked');
+    }
+
+    openBtn.addEventListener('click', open);
+    closeBtn.addEventListener('click', close);
+    prevBtn.addEventListener('click', () => goTo(current-1));
+    nextBtn.addEventListener('click', () => goTo(current+1));
+    progressEl.addEventListener('click', (e) => {
+      const dot = e.target.closest('.cpi-dot');
+      if (dot) goTo(parseInt(dot.dataset.i, 10));
+    });
+    modeExploreBtn.addEventListener('click', () => {
+      close();
+      document.getElementById('forecast-atualizado').scrollIntoView({behavior:'smooth', block:'start'});
+    });
+    dqToggle.addEventListener('click', () => dqPanel.classList.toggle('open'));
+
+    document.addEventListener('keydown', (e) => {
+      if (!overlay.classList.contains('open')) return;
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); goTo(current+1); }
+      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); goTo(current-1); }
+      else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+      else if (e.key === 'End') { e.preventDefault(); goTo(pages.length-1); }
+      else if (e.key === 'Escape') { close(); }
+    });
+
+    let wheelLock = false;
+    pagesEl.addEventListener('wheel', (e) => {
+      if (!overlay.classList.contains('open')) return;
+      e.preventDefault();
+      if (wheelLock || Math.abs(e.deltaY) < 12) return;
+      wheelLock = true;
+      goTo(current + (e.deltaY > 0 ? 1 : -1));
+      setTimeout(() => { wheelLock = false; }, 550);
+    }, { passive: false });
+
+    let touchStartY = null;
+    pagesEl.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; }, { passive: true });
+    pagesEl.addEventListener('touchend', (e) => {
+      if (touchStartY === null) return;
+      const dy = touchStartY - e.changedTouches[0].clientY;
+      if (Math.abs(dy) > 60) goTo(current + (dy > 0 ? 1 : -1));
+      touchStartY = null;
+    }, { passive: true });
+  }
+
   function renderForecastAtualizado(){
     const pd = buildPresentationData();
     if (!pd) return;
     const { mv, funilLeads, pend, fore, fech, potencialCount, potencialValor,
       JUL, metaJul, valorJul, saldoJul, pctJul, canalRows, porResponsavel, metaAcum, realizadoAcum, pctAcum } = pd;
-
-    // ---- montagem dos slides (mesmo estilo do ppt "Indicador Comercial") ----
-    const slides = [];
-
-    slides.push({cls:'on-orange center', html:`
-      <svg class="slide-mark" viewBox="0 0 260 175" xmlns="http://www.w3.org/2000/svg">
-        <polygon fill="#fff" points="153.4 87.56 167.65 62.87 167.68 62.85 178.13 44.72 178.11 44.68 178.15 44.68 203.95 0 182.97 0 152.31 0 110.4 0 99.17 0 73.37 44.68 73.35 44.72 62.87 62.87 48.62 87.56 48.41 87.94 0 171.76 83.81 171.76 104.78 171.76 125.74 135.49 125.76 135.44 153.19 87.94 153.4 87.56"/>
-        <polygon fill="#fff" points="203.07 87.94 175.75 87.94 153.9 125.79 153.9 125.83 137.02 155.01 146.7 171.76 209.57 171.76 251.48 171.76 203.07 87.94"/>
-      </svg>
-      <div class="slide-heading" style="font-size:23px;">Apresentação dos Resultados</div>
-      <div class="slide-eyebrow" style="margin-top:8px;">Julho de 2026</div>
-    `});
-
-    slides.push({cls:'on-orange center', html:`
-      <div class="slide-eyebrow">Resultado de indicadores do comercial</div>
-      <div class="slide-big">JULHO DE 2026</div>
-    `});
-
-    slides.push({cls:'on-white center', html:`
-      <div class="slide-eyebrow">Meta mensal de julho</div>
-      <div class="slide-stat-value" style="color:var(--orange);">${brl(metaJul)}</div>
-    `});
-
-    slides.push({cls:'on-orange center', html:`
-      <div class="slide-eyebrow">Valor do mês de julho (ajustado)</div>
-      <div class="slide-stat-value">${brl(valorJul)}</div>
-      <div class="slide-sub">Acompanhamento mensal Meta × Vendido</div>
-    `});
-
-    slides.push({cls:'on-white center', html:`
-      <div class="slide-eyebrow">Saldo da meta mensal de julho</div>
-      <div class="slide-stat-value" style="color:${saldoJul>=0?'var(--good)':'var(--crit)'};">${brl(saldoJul)}</div>
-      <div class="slide-sub">${pctJul.toFixed(2).replace('.',',')}% da meta atingida</div>
-    `});
-
-    const monthCards = mv.meses.slice(0, JUL+1).map((mes,i) => `
-      <div class="month-mini">
-        <div class="mm-name">${mes.slice(0,3)}</div>
-        <div class="mm-row"><span>Meta</span><b>${brl(mv.meta[i])}</b></div>
-        <div class="mm-row"><span>Realiz.</span><b>${brl(mv.valor_ajustado[i])}</b></div>
-        <div class="mm-pct" style="color:${mv.pct_meta[i]>=100?'var(--good)':'var(--warn)'};">${mv.pct_meta[i].toFixed(2).replace('.',',')}%</div>
-      </div>
-    `).join('');
-    slides.push({cls:'on-white', html:`
-      <div class="slide-eyebrow">Meta × Realizado — 2026</div>
-      <div class="slide-heading">Janeiro a Julho</div>
-      <div class="month-grid">${monthCards}</div>
-    `});
-
-    slides.push({cls:'on-orange center', html:`
-      <div class="slide-eyebrow">Resultado acumulado 2026 — Janeiro a Julho</div>
-      <div class="slide-stat-value" style="font-size:32px;">${brl(realizadoAcum)}</div>
-      <div class="slide-sub">Meta acumulada: ${brl(metaAcum)} · ${pctAcum.toFixed(2).replace('.',',')}% da meta</div>
-      <div class="slide-sub">Saldo acumulado: ${brl(mv.saldo_2026)}</div>
-    `});
-    const canalRowsHtml = canalRows.map(([canal,val]) => `<tr><td>${canal}</td><td style="text-align:right;font-weight:700;">${brl(val)}</td></tr>`).join('');
-    slides.push({cls:'on-white', html:`
-      <div class="slide-eyebrow">Origem dos contratos assinados</div>
-      <div class="slide-heading">Julho de 2026</div>
-      <div class="slide-table-wrap"><table>
-        <thead><tr><th>Canal / Origem</th><th style="text-align:right;">Total</th></tr></thead>
-        <tbody>${canalRowsHtml}</tbody>
-        <tfoot><tr><td>TOTAL</td><td style="text-align:right;">${brl(fech.valor)}</td></tr></tfoot>
-      </table></div>
-    `});
-
-    const prod = DATA.produtos_julho;
-    if (prod) {
-      const prodRows = prod.por_vendedor.map(v => `
-        <tr><td>${v.vendedor}</td><td>${brl(v.profile)}</td><td>${brl(v.gr)}</td><td>${brl(v.analytics)}</td><td>${brl(v.torre)}</td><td style="font-weight:700;">${brl(v.total)}</td></tr>
-      `).join('');
-      slides.push({cls:'on-white', html:`
-        <div class="slide-eyebrow">Valor vendido por produto</div>
-        <div class="slide-heading" style="font-size:17px;">Julho de 2026 — ${prod.cobertura}</div>
-        <div class="slide-table-wrap"><table style="font-size:11.5px;">
-          <thead><tr><th>Vendedor</th><th>Profile</th><th>GR</th><th>Analytics</th><th>Torre</th><th>Total</th></tr></thead>
-          <tbody>${prodRows}</tbody>
-          <tfoot><tr><td>TOTAL</td><td>${brl(prod.total.profile)}</td><td>${brl(prod.total.gr)}</td><td>${brl(prod.total.analytics)}</td><td>${brl(prod.total.torre)}</td><td>${brl(prod.total.total)}</td></tr></tfoot>
-        </table></div>
-      `});
-    }
-
-    slides.push({cls:'on-dark center', html:`
-      <div class="slide-eyebrow">Julho de 2026</div>
-      <div class="slide-big">CLIENTES FECHADOS<br>POR RESPONSÁVEL</div>
-    `});
-
-    fech.vendedores.forEach(v => {
-      const empresas = porResponsavel[v.vendedor] || [];
-      slides.push({cls:'on-white', html:`
-        <div class="slide-eyebrow">Responsável</div>
-        <div class="slide-heading">${v.vendedor}</div>
-        <div class="slide-sub">${v.count} cliente${v.count===1?'':'s'} · ${brl(v.valor)}</div>
-        <div class="slide-list-wrap"><ul>${empresas.map(e => `<li>${e}</li>`).join('')}</ul></div>
-      `});
-    });
-
-    if (funilLeads) {
-      const funilRows = funilLeads.vendedores.map(v => {
-        const et = {}; v.etapas.forEach(e => et[e.etapa] = e.count);
-        return `<tr><td>${v.vendedor}</td><td>${et['Leads Recebidos']||0}</td><td>${et['Reunião Agendada']||0}</td><td>${et['Convertido em Oportunidade']||0}</td></tr>`;
-      }).join('');
-      slides.push({cls:'on-white', html:`
-        <div class="slide-eyebrow">Vendedores e BDRs</div>
-        <div class="slide-heading">Funil de Leads — Julho</div>
-        <div class="slide-table-wrap"><table>
-          <thead><tr><th>Vendedor</th><th>Recebidos</th><th>Reunião</th><th>Convertido</th></tr></thead>
-          <tbody>${funilRows}</tbody>
-        </table></div>
-      `});
-    }
-
-    slides.push({cls:'on-white center clickable', target:'detail-pendentes', html:`
-      <div class="slide-eyebrow">1. Pendentes Assinatura</div>
-      <div class="slide-stat-value" style="font-size:34px;color:var(--warn);">${pend.count} empresas</div>
-      <div class="slide-sub">${brl(pend.valor)}</div>
-      <div class="slide-cta" style="color:var(--orange);">Ver detalhamento completo ↓</div>
-    `});
-
-    slides.push({cls:'on-orange center clickable', target:'detail-forecast', html:`
-      <div class="slide-eyebrow">2. Forecast</div>
-      <div class="slide-stat-value" style="font-size:34px;">${fore.count} empresas</div>
-      <div class="slide-sub">${brl(fore.valor)}</div>
-      <div class="slide-cta">Ver detalhamento completo ↓</div>
-    `});
-
-    slides.push({cls:'on-white center clickable', target:'detail-potencial', html:`
-      <div class="slide-eyebrow">3. Potencial Geral</div>
-      <div class="slide-stat-value" style="font-size:34px;color:var(--good);">${potencialCount} empresas</div>
-      <div class="slide-sub">${brl(potencialValor)} · Fechados + Pendentes + Forecast</div>
-      <div class="slide-cta" style="color:var(--orange);">Ver detalhamento completo ↓</div>
-    `});
-
-    const total = slides.length;
-    const slidesHtml = slides.map((s,i) => `
-      <div class="slide ${s.cls}"${s.target ? ` data-target="${s.target}"` : ''}>
-        <div class="slide-inner">
-          ${s.html}
-          <div class="slide-footer-badge">${i+1} / ${total}</div>
-        </div>
-      </div>
-    `).join('');
-
-    const deckHtml = `
-      <div class="deck-wrap">
-        <div class="deck" id="apresentacao-deck">${slidesHtml}</div>
-        <div class="deck-nav prev" id="deck-prev">‹</div>
-        <div class="deck-nav next" id="deck-next">›</div>
-        <div class="deck-dots" id="deck-dots">${slides.map((_,i)=>`<button class="deck-dot${i===0?' active':''}" data-i="${i}"></button>`).join('')}</div>
-      </div>
-    `;
 
     const pendGroup = `
       <div class="fc-group">
@@ -1374,49 +1790,9 @@ details.kv-details table{margin-top:0 !important;}
     `;
 
     document.getElementById('forecast-atualizado').innerHTML =
-      deckHtml + `<h3 class="subsection-title">Detalhamento</h3>` + pendGroup + foreGroup + potGroup;
+      `<h3 class="subsection-title">Modo Exploração — Detalhamento</h3>` + pendGroup + foreGroup + potGroup;
 
-    // ---- interações do deck: setas, pontinhos e slides clicáveis ----
-    const deckEl = document.getElementById('apresentacao-deck');
-    const dotsEl = document.getElementById('deck-dots');
-    const slideEls = Array.from(deckEl.children);
-
-    function scrollToSlide(i){
-      const target = slideEls[Math.max(0, Math.min(i, slideEls.length-1))];
-      if (target) target.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
-    }
-    document.getElementById('deck-prev').addEventListener('click', () => {
-      const i = slideEls.findIndex(el => Math.abs(el.getBoundingClientRect().left - deckEl.getBoundingClientRect().left) < el.offsetWidth/2);
-      scrollToSlide(i - 1);
-    });
-    document.getElementById('deck-next').addEventListener('click', () => {
-      const i = slideEls.findIndex(el => Math.abs(el.getBoundingClientRect().left - deckEl.getBoundingClientRect().left) < el.offsetWidth/2);
-      scrollToSlide(i + 1);
-    });
-    dotsEl.querySelectorAll('.deck-dot').forEach(dot => {
-      dot.addEventListener('click', () => scrollToSlide(parseInt(dot.dataset.i, 10)));
-    });
-    let scrollTimer = null;
-    deckEl.addEventListener('scroll', () => {
-      clearTimeout(scrollTimer);
-      scrollTimer = setTimeout(() => {
-        const deckRect = deckEl.getBoundingClientRect();
-        let closest = 0, closestDist = Infinity;
-        slideEls.forEach((el, i) => {
-          const dist = Math.abs((el.getBoundingClientRect().left + el.offsetWidth/2) - (deckRect.left + deckRect.width/2));
-          if (dist < closestDist) { closestDist = dist; closest = i; }
-        });
-        dotsEl.querySelectorAll('.deck-dot').forEach((d,i) => d.classList.toggle('active', i===closest));
-      }, 80);
-    });
-    deckEl.addEventListener('click', (e) => {
-      const slideEl = e.target.closest('.slide[data-target]');
-      if (!slideEl) return;
-      const target = document.getElementById(slideEl.dataset.target);
-      if (!target) return;
-      target.open = true;
-      target.scrollIntoView({behavior:'smooth', block:'center'});
-    });
+    setupCinema(pd);
   }
 
   // ---------------------------------------------------------------------
